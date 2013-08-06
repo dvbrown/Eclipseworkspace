@@ -23,15 +23,6 @@ for row in files:
 #get the header row then remove it from data
 dataHeader = data[0][:]
 data = data[1:]
-    
-#===============================================================================
-# create a list of patient IDs
-# tumourSampleBarcode = []
-# for row in data:
-#    tumourSampleBarcode.append(row[2])
-# #sort and dedupicate the list
-# tumourSampleBarcodeDedup = sorted(set(tumourSampleBarcode))
-#===============================================================================
 
 #create a list of patient IDs
 def makeListFromColumn(table, columnNumber):
@@ -44,3 +35,5 @@ def makeListFromColumn(table, columnNumber):
 
 tumourSampleBarcode = makeListFromColumn(data, 2)
 geneExtractedList = makeListFromColumn(data, 0)
+
+
