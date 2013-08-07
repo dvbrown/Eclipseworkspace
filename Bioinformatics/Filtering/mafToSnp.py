@@ -35,5 +35,26 @@ def makeListFromColumn(table, columnNumber):
 
 tumourSampleBarcode = makeListFromColumn(data, 2)
 geneExtractedList = makeListFromColumn(data, 0)
+zeros = len(tumourSampleBarcode)
 
+#================================Trying the list way============================
+# matrix = []
+# x = 0
+# for gene in geneExtractedList:
+#    matrix.append(gene)
+#    while x <= zeros:  
+#        matrix.append('0')
+#        x += 1
+#===============================================================================
 
+#-------------------------------Trying the dictionary way--------------------------------- 
+matrix = dict.fromkeys(geneExtractedList)
+for gene in matrix: #for each key in the matrix
+    for row in data: #for each entry in the maf file
+        if gene == row[0]: #if the key is the first entry of the maf file
+            print row[2]
+            matrix[gene[0]].update(row[2]) #add the patient ID as the value for the key
+
+#should be 3 values for TP53 if this works
+print matrix
+    
