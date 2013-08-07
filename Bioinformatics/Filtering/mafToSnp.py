@@ -37,7 +37,8 @@ tumourSampleBarcode = makeListFromColumn(data, 2)
 geneExtractedList = makeListFromColumn(data, 0)
 
 #-------------------------------Trying the dictionary way--------------------------------- 
-matrix = dict.fromkeys(geneExtractedList, tumourSampleBarcode)
+#This is a dictionary of dictionaries where the external key is gene and internal key is patient ID with value 0
+matrix = dict.fromkeys(geneExtractedList, dict.fromkeys(tumourSampleBarcode, 0))
 
 #iterate over the genes in the dictionary and then the maf file
 for gene in matrix.keys():
@@ -45,15 +46,16 @@ for gene in matrix.keys():
     for row in data[:]:
     #if there is a match between the key and the maf file    
         if gene == row[0]:
-        #iterate through the patient IDs of the match key-value  
-            for patientID in matrix[gene]:
+        #iterate through the patient IDs of the match key-value.
+        #=======================================================================
+        # This bit is changed below  
+        #=======================================================================
+            for patientID in matrix[gene].keys():
             #if there is match between the maf patientID and the dict value, set to 1
                 if patientID == row[2]:
-                    matrix[gene][matrix[gene].index(patientID)] = True
+                    matrix[gene][patientID] = 1
                 else:
-                    break                          
-            
-            
+                    matrix[gene][patientID] = False
+                                                            
 #should be 3 values for TP53 if this works
-print matrix
-    
+print matrix['TP53']
