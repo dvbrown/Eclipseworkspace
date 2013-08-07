@@ -48,12 +48,12 @@ zeros = len(tumourSampleBarcode)
 #===============================================================================
 
 #-------------------------------Trying the dictionary way--------------------------------- 
-matrix = dict.fromkeys(geneExtractedList)
-for gene in matrix: #for each key in the matrix
-    for row in data: #for each entry in the maf file
-        if gene == row[0]: #if the key is the first entry of the maf file
-            print row[2]
-            matrix[gene[0]].update(row[2]) #add the patient ID as the value for the key
+matrix = dict.fromkeys(geneExtractedList, tumourSampleBarcode)
+#for gene in matrix: #for each key in the matrix
+for row in data: #for each entry in the maf file
+    if row[0] in matrix.keys(): #if the key is the first entry of the maf file
+            #print row[2]
+        matrix.values().append(row[2]) #add the patient ID as the value for the key
 
 #should be 3 values for TP53 if this works
 print matrix
