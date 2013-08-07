@@ -35,26 +35,25 @@ def makeListFromColumn(table, columnNumber):
 
 tumourSampleBarcode = makeListFromColumn(data, 2)
 geneExtractedList = makeListFromColumn(data, 0)
-zeros = len(tumourSampleBarcode)
-
-#================================Trying the list way============================
-# matrix = []
-# x = 0
-# for gene in geneExtractedList:
-#    matrix.append(gene)
-#    while x <= zeros:  
-#        matrix.append('0')
-#        x += 1
-#===============================================================================
 
 #-------------------------------Trying the dictionary way--------------------------------- 
 matrix = dict.fromkeys(geneExtractedList, tumourSampleBarcode)
-#for gene in matrix: #for each key in the matrix
-for row in data: #for each entry in the maf file
-    if row[0] in matrix.keys(): #if the key is the first entry of the maf file
-            #print row[2]
-        matrix.values().append(row[2]) #add the patient ID as the value for the key
 
+#iterate over the genes in the dictionary and then the maf file
+for gene in matrix.keys():
+    #Apparently for loops use an internal index and f you modify the list you are iterating over so can screw thngs up. Solution is to iterate oer a copy of the list
+    for row in data[:]:
+    #if there is a match between the key and the maf file    
+        if gene == row[0]:
+        #iterate through the patient IDs of the match key-value  
+            for patientID in matrix[gene]:
+            #if there is match between the maf patientID and the dict value, set to 1
+                if patientID == row[2]:
+                    matrix[gene][matrix[gene].index(patientID)] = True
+                else:
+                    break                          
+            
+            
 #should be 3 values for TP53 if this works
 print matrix
     
