@@ -37,25 +37,35 @@ tumourSampleBarcode = makeListFromColumn(data, 2)
 geneExtractedList = makeListFromColumn(data, 0)
 
 #-------------------------------Trying the dictionary way--------------------------------- 
-#This is a dictionary of dictionaries where the external key is gene and internal key is patient ID with value 0
+
+#This is a dictionary of dictionaries where the external key is gene and internal key is patient ID with value 0.
+#0 refers to the mutation being absent (False)
 matrix = dict.fromkeys(geneExtractedList, dict.fromkeys(tumourSampleBarcode, 0))
 
 #iterate over the genes in the dictionary and then the maf file
 for gene in matrix.keys():
-    #Apparently for loops use an internal index and f you modify the list you are iterating over so can screw thngs up. Solution is to iterate oer a copy of the list
+    #Apparently for loops use an internal index and if you modify the list you are iterating over so can screw things up. Solution is to iterate over a copy of the list
     for row in data[:]:
-    #if there is a match between the key and the maf file    
+    #if there is a match between the gene key and the maf file gene   
         if gene == row[0]:
         #iterate through the patient IDs of the match key-value.
-        #=======================================================================
-        # This bit is changed below  
-        #=======================================================================
             for patientID in matrix[gene].keys():
-            #if there is match between the maf patientID and the dict value, set to 1
+            #if there is match between the maf patientID and the dict value, set to 1 (True)
                 if patientID == row[2]:
                     matrix[gene][patientID] = 1
-                else:
-                    matrix[gene][patientID] = False
+                else:                    
+                    (matrix[gene][patientID]) = 0
+        else:
+            continue
                                                             
-#should be 3 values for TP53 if this works
+#should be 3 x '1' values for TP53 if this works
 print matrix['TP53']
+
+#output to file
+w = open(outFile, 'w')        
+writer = csv.writer(w ,delimiter="\t")
+for row in matrix:
+    writer.writerow(row)
+
+f.close()
+w.close()
