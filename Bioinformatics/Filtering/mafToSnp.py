@@ -47,10 +47,10 @@ for gene in matrix.keys():
     #Apparently for loops use an internal index and if you modify the list you are iterating over so can screw things up. Solution is to iterate over a copy of the list
     for row in data[:]:
     #if there is a match between the gene key and the maf file gene   
-        if gene == row[0]:
+        if matrix.get(gene, 'nope') == row[0]:
         #iterate through the patient IDs of the match key-value.
-            for patientID in matrix[gene].keys():
-                print gene + ' patientID ' + matrix[gene].keys()
+            for patientID in matrix.get(gene, 'nope'):
+                #print gene + ' patientID ' + matrix[gene].keys()
             #if there is match between the maf patientID and the dict value, set to 1 (True)
             #===================================================================
             # There appears to be a bug that sets all the value of patient ID to 1 in all gene keys
@@ -63,10 +63,12 @@ for gene in matrix.keys():
                     #print gene + ' from ' + patientID + ' is now -> ' + matrix[gene][patientID] + '\n'
                 #else:                    
                     #(matrix[gene][patientID]) = 0
+        else:
+            continue
 
                                                             
 #should be 3 x '1' values for TP53 if this works
-print matrix['PIK3CA']
+print matrix['TP53']
 
 #output to file
 w = open(outFile, 'w')
