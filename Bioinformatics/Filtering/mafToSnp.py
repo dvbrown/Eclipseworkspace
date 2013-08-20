@@ -41,7 +41,7 @@ geneExtractedList = makeListFromColumn(data, 0)
 #This is a dictionary of dictionaries where the external key is gene and internal key is patient ID with value 0.
 #0 refers to the mutation being absent (False)
 matrix = dict.fromkeys(geneExtractedList, dict.fromkeys(tumourSampleBarcode, '0'))
-
+print matrix['PIK3CA']
 #iterate over the genes in the dictionary and then the maf file
 for gene in matrix.keys():
     #Apparently for loops use an internal index and if you modify the list you are iterating over so can screw things up. Solution is to iterate over a copy of the list
@@ -50,7 +50,6 @@ for gene in matrix.keys():
         if gene == row[0]:
         #iterate through the patient IDs of the match key-value.
             for patientID in matrix[gene].keys():
-                print gene + ' patientID ' + matrix[gene].keys()
             #if there is match between the maf patientID and the dict value, set to 1 (True)
             #===================================================================
             # There appears to be a bug that sets all the value of patient ID to 1 in all gene keys
@@ -59,11 +58,14 @@ for gene in matrix.keys():
             #===================================================================
                 if patientID == row[2]:
                     #print gene + ' initial value is ' + matrix[gene][patientID]
-                    matrix[gene][patientID] = '1'
+                    #matrix[gene][patientID] = '1'
+                    matrix[gene][patientID] = 1
                     #print gene + ' from ' + patientID + ' is now -> ' + matrix[gene][patientID] + '\n'
-                #else:                    
+                else:        
+                    break            
                     #(matrix[gene][patientID]) = 0
-
+        else:
+            break
                                                             
 #should be 3 x '1' values for TP53 if this works
 print matrix['PIK3CA']
