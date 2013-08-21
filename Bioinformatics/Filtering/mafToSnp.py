@@ -58,17 +58,16 @@ for gene in matrix.keys():
             #===================================================================
                 if patientID == row[2]:
                     #print gene + ' initial value is ' + matrix[gene][patientID]
-                    #matrix[gene][patientID] = '1'
                     matrix[gene][patientID] = 1
                     #print gene + ' from ' + patientID + ' is now -> ' + matrix[gene][patientID] + '\n'
-                else:        
-                    break            
+                else:                   
+                    continue
                     #(matrix[gene][patientID]) = 0
         else:
             break
                                                             
 #should be 3 x '1' values for TP53 if this works
-print matrix['PIK3CA']
+print matrix#['TP53']
 
 #output to file
 w = open(outFile, 'w')
