@@ -23,30 +23,16 @@ def readFileToList(file):
 #set up script
 os.chdir('/Users/d.brown6/Documents/eQTL/Matrix_eQTL_R/')
 mutFile = sys.argv[1]
-geneFile = sys.argv[2]
 
 #read in files
 mutPatient = readFileToList(mutFile)
-
-genePatient = readFileToList(geneFile)
-geneList = genePatient[0]
+noHeader = mutPatient[1:][:]
 
 #convert patient IDs of which I have mutation data as a set of names for pattern matching
 mutPatientSet = set(mutPatient[0][1:])
 mutList = [name.strip('-01D-1490-08') for name in mutPatientSet]
 mutList = [name.strip('A') for name in mutList]
-print mutList
 
-##create a default Dict for the gene expression data. The patient names as keys and their gene expression as values
-#geneExprDict = defaultdict(set)
-#geneExprDict.keys(geneList)
-#for entry in genePatient:
-#    p = entry
-#
-#ind = []
-#for patient in mutList:
-#    if patient in geneList:
-#        ind.append(geneList.index(patient))
-#
-#output = genePatient[1,2][:]
-#print output
+print 'patient'+'\t'+'\t'.join(mutList)
+for line in noHeader:
+    print '\t'.join(line)
