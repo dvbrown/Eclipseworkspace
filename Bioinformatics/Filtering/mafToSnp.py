@@ -42,29 +42,31 @@ tumourSampleBarcode = makeListFromColumn(data, 2)
 #Common uses include membership testing, removing duplicates from a sequence, and 
 #computing mathematical operations such as intersection, union, difference
 #===============================================================================
-
-#initialise a set to hold patient IDs. This automatially removes duplicates
-patients = set(tumourSampleBarcode)
-
-#initialise a default dictionary to hold the gene names. Default means it adds an empty set when there is a key error
-mut = defaultdict(set)
-
-for entry in data:
-    gene = entry[0]
-    patientID = entry[2]
-    #use the gene name as the key and patient ID as the value
-    mut[gene].add(patientID)
-    patients.add(patientID)
-pList = sorted(list(patients))
-
-print 'patient'+'\t' + '\t'.join(pList)
-#-----------------------------------------------------------------------------------------------
-
-#output key value pairs as tuples
-for (gene, P) in mut.items():
-    #test if the patientID is a value for the gene key, make it 1 or 0
-    l = ['1' if patient in P else '0' for patient in pList]
-    #write out the gene name then the list membership
-    print gene+'\t' + '\t'.join(l)           
+def main():
+    #initialise a set to hold patient IDs. This automatially removes duplicates
+    patients = set(tumourSampleBarcode)
+    
+    #initialise a default dictionary to hold the gene names. Default means it adds an empty set when there is a key error
+    mut = defaultdict(set)
+    
+    for entry in data:
+        gene = entry[0]
+        patientID = entry[2]
+        #use the gene name as the key and patient ID as the value
+        mut[gene].add(patientID)
+        patients.add(patientID)
+    pList = sorted(list(patients))
+    
+    print 'patient'+'\t' + '\t'.join(pList)
+    #-----------------------------------------------------------------------------------------------
+    
+    #output key value pairs as tuples
+    for (gene, P) in mut.items():
+        #test if the patientID is a value for the gene key, make it 1 or 0
+        l = ['1' if patient in P else '0' for patient in pList]
+        #write out the gene name then the list membership
+        print gene+'\t' + '\t'.join(l)           
 
 f.close()
+if __name__ == '__main__':
+    main()
