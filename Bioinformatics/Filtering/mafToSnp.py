@@ -12,7 +12,6 @@ from collections import defaultdict
 #set up script
 os.chdir('/Users/d.brown6/Documents/eQTL/Matrix_eQTL_R/')
 inFile = sys.argv[1]
-outFile = sys.argv[2]
 data = []
 
 #read in the files
@@ -57,7 +56,10 @@ for entry in data:
     mut[gene].add(patientID)
     patients.add(patientID)
 pList = sorted(list(patients))
+
+print 'patient'+'\t' + '\t'.join(pList)
 #-----------------------------------------------------------------------------------------------
+
 #output key value pairs as tuples
 for (gene, P) in mut.items():
     #test if the patientID is a value for the gene key, make it 1 or 0
@@ -65,13 +67,4 @@ for (gene, P) in mut.items():
     #write out the gene name then the list membership
     print gene+'\t' + '\t'.join(l)           
 
-print list(patients)
-
-#output to file
-w = open(outFile, 'w')
-writer = csv.writer(w ,delimiter="\t")
-#for row in matrix:
-#    writer.writerow(row)
-
 f.close()
-w.close()
