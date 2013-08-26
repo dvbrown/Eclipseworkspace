@@ -5,12 +5,12 @@
 #############################################################################################
 
 import sys
-import os
+#import os
 import csv
 from collections import defaultdict
 
 #set up script
-os.chdir('/Users/d.brown6/Documents/eQTL/Matrix_eQTL_R/')
+#os.chdir('/Users/d.brown6/Documents/eQTL/Matrix_eQTL_R/')
 inFile = sys.argv[1]
 data = []
 

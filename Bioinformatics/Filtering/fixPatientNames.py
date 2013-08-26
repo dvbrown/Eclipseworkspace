@@ -5,7 +5,7 @@
 #############################################################################################
 
 import sys
-import os
+#import os
 import csv
 
 def readFileToList(fileName):
@@ -19,7 +19,7 @@ def readFileToList(fileName):
     return data
 
 #set up script
-os.chdir('/Users/d.brown6/Documents/eQTL/Matrix_eQTL_R/')
+#os.chdir('/Users/d.brown6/Documents/eQTL/Matrix_eQTL_R/')
 mutFile = sys.argv[1]
 
 def main():
