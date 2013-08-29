@@ -5,8 +5,10 @@
 #############################################################################################
 
 import sys
-#import os
+import os
 import csv
+import re
+os.chdir('/Users/d.brown6/Documents/eQTL/130829_fullData')
 
 def readFileToList(fileName):
     'Reads in a tabular file and extracts the numeric data and column header'
@@ -27,10 +29,11 @@ def main():
     mutPatient = readFileToList(mutFile)
     noHeader = mutPatient[1:][:]
     
+    #get rid of TCGA-02-0047-01A-01D-1490-08
+    
     #convert patient IDs of which I have mutation data as a set of names for pattern matching
     mutPatientSet = set(mutPatient[0][1:])
-    mutList = [name.strip('-01D-1490-08') for name in mutPatientSet]
-    mutList = [name.strip('A') for name in mutList]
+    mutList = [re.sub('.-...-....-08','', name) for name in mutPatientSet]
     
     print 'patient'+'\t'+'\t'.join(mutList)
     for line in noHeader:
