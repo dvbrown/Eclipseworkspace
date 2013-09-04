@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 
-    ruffus_template.py
+    ruffus_template.py  [--input_file]
                         [--log_file PATH]
                         [--verbose]
                         [--target_tasks]
@@ -48,6 +48,11 @@ if __name__ == '__main__':
     #
     #   pipeline options
     #
+    parser.add_option("-i", "--input_file", dest="input_file",
+                        default = str(),
+                        metavar="FILE",
+                        type="string",
+                        help="The file to use as input")
     parser.add_option("-t", "--target_tasks", dest="target_tasks",
                         action="append",
                         default = list(),
@@ -231,18 +236,21 @@ if __name__ == '__main__':
 #88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
 
 #       Put pipeline code here
-def first_task():
+os.chdir('/Users/d.brown6/Documents/RNAdata/danBatch1')
+trimmomatic_params = options.input_file
+
+
+@transform(trimmomatic_params, suffix(".fq"), ".trim.fq", #more params
+           )
+def trimmomatic():
     print "Hello "
 
-@follows(first_task)
-def second_task():
-    print "world"
-
-pipeline_run([second_task])
 
 
 
 
+
+pipeline_run([trimmomatic])
 #88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
 
 #   Main logic
