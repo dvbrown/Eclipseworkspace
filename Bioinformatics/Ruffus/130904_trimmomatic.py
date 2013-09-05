@@ -42,9 +42,6 @@ if __name__ == '__main__':
                       type="string",
                       help="Name and path of log file")
 
-
-
-
     #
     #   pipeline options
     #
@@ -72,7 +69,6 @@ if __name__ == '__main__':
                         type="string",
                         help="Don't actually run any commands; just print the pipeline "
                              "as a flowchart.")
-
     #
     #   Less common pipeline options
     #
@@ -157,56 +153,56 @@ from ruffus import *
 
 #88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
 
-if __name__ == '__main__':
-    import logging
-    import logging.handlers
-
-    MESSAGE = 15
-    logging.addLevelName(MESSAGE, "MESSAGE")
-
-    def setup_std_logging (logger, log_file, verbose):
-        """
-        set up logging using programme options
-        """
-        class debug_filter(logging.Filter):
-            """
-            Ignore INFO messages
-            """
-            def filter(self, record):
-                return logging.INFO != record.levelno
-
-        class NullHandler(logging.Handler):
-            """
-            for when there is no logging
-            """
-            def emit(self, record):
-                pass
-
-        # We are interesting in all messages
-        logger.setLevel(logging.DEBUG)
-        has_handler = False
-
-        # log to file if that is specified
-        if log_file:
-            handler = logging.FileHandler(log_file, delay=False)
-            handler.setFormatter(logging.Formatter("%(asctime)s - %(name)s - %(levelname)6s - %(message)s"))
-            handler.setLevel(MESSAGE)
-            logger.addHandler(handler)
-            has_handler = True
-
-        # log to stderr if verbose
-        if verbose:
-            stderrhandler = logging.StreamHandler(sys.stderr)
-            stderrhandler.setFormatter(logging.Formatter("    %(message)s"))
-            stderrhandler.setLevel(logging.DEBUG)
-            if log_file:
-                stderrhandler.addFilter(debug_filter())
-            logger.addHandler(stderrhandler)
-            has_handler = True
-
-        # no logging
-        if not has_handler:
-            logger.addHandler(NullHandler())
+#if __name__ == '__main__':
+#    import logging
+#    import logging.handlers
+#
+#    MESSAGE = 15
+#    logging.addLevelName(MESSAGE, "MESSAGE")
+#
+#    def setup_std_logging (logger, log_file, verbose):
+#        """
+#        set up logging using programme options
+#        """
+#        class debug_filter(logging.Filter):
+#            """
+#            Ignore INFO messages
+#            """
+#            def filter(self, record):
+#                return logging.INFO != record.levelno
+#
+#        class NullHandler(logging.Handler):
+#            """
+#            for when there is no logging
+#            """
+#            def emit(self, record):
+#                pass
+#
+#        # We are interesting in all messages
+#        logger.setLevel(logging.DEBUG)
+#        has_handler = False
+#
+#        # log to file if that is specified
+#        if log_file:
+#            handler = logging.FileHandler(log_file, delay=False)
+#            handler.setFormatter(logging.Formatter("%(asctime)s - %(name)s - %(levelname)6s - %(message)s"))
+#            handler.setLevel(MESSAGE)
+#            logger.addHandler(handler)
+#            has_handler = True
+#
+#        # log to stderr if verbose
+#        if verbose:
+#            stderrhandler = logging.StreamHandler(sys.stderr)
+#            stderrhandler.setFormatter(logging.Formatter("    %(message)s"))
+#            stderrhandler.setLevel(logging.DEBUG)
+#            if log_file:
+#                stderrhandler.addFilter(debug_filter())
+#            logger.addHandler(stderrhandler)
+#            has_handler = True
+#
+#        # no logging
+#        if not has_handler:
+#            logger.addHandler(NullHandler())
 
 
     #
@@ -242,15 +238,12 @@ trimmomatic_input = options.input_file
 @transform(trimmomatic_input, suffix(".fq"), ".trim.fq") #more params
 def trimmomatic(infile, outfile): #more params):
     headParams = 'java -Xmx512m -classpath ' 
-    trimmPath = '/Users/d.brown6/Bioinformatics/Trimmomatic-0.22/'
     classPath = '/Users/d.brown6/Bioinformatics/Trimmomatic-0.22/trimmomatic-0.22.jar '
     trimOptions = 'org.usadellab.trimmomatic.TrimmomaticSE -threads 1 -phred33 -trimlog ' +trimmomatic_input + '.trimLog.txt '
     trailParams = ' ILLUMINACLIP:/Users/d.brown6/Bioinformatics/Trimmomatic-0.22/IlluminaAdapters.fa:2:40:15 LEADING:20 TRAILING:20 MINLEN:50'
     commTrim = headParams + classPath + trimOptions + infile + ' ' + outfile + trailParams
     print commTrim
     os.system(commTrim)
-
-
 
 #88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
 
@@ -259,8 +252,7 @@ def trimmomatic(infile, outfile): #more params):
 #88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
 if __name__ == '__main__':
     if options.just_print:
-        pipeline_printout(sys.stdout, options.target_tasks, options.forced_tasks,
-                            verbose=options.verbose)
+        pipeline_printout(sys.stdout, options.target_tasks)# options.forced_tasks, verbose=options.verbose)
 
     elif options.flowchart:
         pipeline_printout_graph (   open(options.flowchart, "w"),
