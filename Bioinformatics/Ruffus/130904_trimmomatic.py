@@ -236,14 +236,19 @@ if __name__ == '__main__':
 #88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
 
 #       Put pipeline code here
-os.chdir('/Users/d.brown6/Documents/RNAdata/danBatch1')
-trimmomatic_params = options.input_file
+os.chdir('/Users/d.brown6/Documents/RNAdata/danBatch1/')
+trimmomatic_input = options.input_file
 
 
-@transform(trimmomatic_params, suffix(".fq"), ".trim.fq", #more params
-           )
-def trimmomatic():
-    print "Hello "
+@transform(trimmomatic_input, suffix(".fq"), ".trim.fq") #more params
+
+def trimmomatic(inputFile, outputFile): #more params):
+    headParams = 'java -Xmx512m -classpath ~/Bioinformatics/Trimmomatic-0.22trimmomatic-0.22.jar '
+    trimOptions = 'org.usadellab.trimmomatic.TrimmomaticSE -threads 1 -phred33 -trimlog' +trimmomatic_input + '.trimLog.txt'
+    inputFile = trimmomatic_input
+    trailParams = ' ILLUMINACLIP:IlluminaAdapters.fa:2:40:15 LEADING:20 TRAILING:20 MINLEN:50'
+    commTrim = headParams + trimOptions + inputFile + trailParams
+    print commTrim
 
 
 
