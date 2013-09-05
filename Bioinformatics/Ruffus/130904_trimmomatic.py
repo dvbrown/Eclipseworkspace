@@ -46,7 +46,7 @@ if __name__ == '__main__':
     #   pipeline options
     #
     parser.add_option("-i", "--input_file", dest="input_file",
-                        default = str(),
+                        default = list(),
                         metavar="FILE",
                         type="string",
                         help="The file to use as input")
@@ -235,15 +235,20 @@ from ruffus import *
 os.chdir('/Users/d.brown6/Documents/RNAdata/danBatch1/')
 trimmomatic_input = options.input_file
 
-@transform(trimmomatic_input, suffix(".fq"), ".trim.fq") #more params
-def trimmomatic(infile, outfile): #more params):
+@follows(mkdir("./trimFastqs"))
+@transform(trimmomatic_input, suffix(".fq"), [".trim.fq", ".trimmSuccess"]) #added touch file
+def trimmomatic(infile, outfiles): #more params):
+    trimResultFile, flagFile = outfiles
     headParams = 'java -Xmx512m -classpath ' 
     classPath = '/Users/d.brown6/Bioinformatics/Trimmomatic-0.22/trimmomatic-0.22.jar '
-    trimOptions = 'org.usadellab.trimmomatic.TrimmomaticSE -threads 1 -phred33 -trimlog ' +trimmomatic_input + '.trimLog.txt '
+    trimOptions = 'org.usadellab.trimmomatic.TrimmomaticPE -threads 1 -phred33 -trimlog ' +trimmomatic_input + '.trimLog.txt '
     trailParams = ' ILLUMINACLIP:/Users/d.brown6/Bioinformatics/Trimmomatic-0.22/IlluminaAdapters.fa:2:40:15 LEADING:20 TRAILING:20 MINLEN:50'
-    commTrim = headParams + classPath + trimOptions + infile + ' ' + outfile + trailParams
+    commTrim = headParams + classPath + trimOptions + infile + ' ' + trimResultFile + trailParams
+    
     print commTrim
-    os.system(commTrim)
+    #os.system(commTrim)
+    #touch file indicates success. It should be empty if there was success
+    open(flagFile , 'w') 
 
 #88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
 
