@@ -14,6 +14,7 @@
 """
 import sys, os
 import subprocess
+import time
 
 #88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
 
@@ -235,21 +236,23 @@ from ruffus import *
 os.chdir('/Users/d.brown6/Documents/RNAdata/danBatch1/')
 trimmomatic_input = options.input_file
 
-@follows(mkdir("./trimFastqs"))
+#@follows(mkdir("./trimFastqs")) Can make a new directory and put output there
+
 @transform(trimmomatic_input, suffix(".fq"), [".trim.fq", ".trimmSuccess"]) #added touch file
 def trimmomatic(infile, outfiles): #more params):
     trimResultFile, flagFile = outfiles
-    headParams = 'java -Xmx512m -classpath ' 
+    headParams = 'java -Xmx4g -classpath ' 
     classPath = '/Users/d.brown6/Bioinformatics/Trimmomatic-0.22/trimmomatic-0.22.jar '
     trimOptions = 'org.usadellab.trimmomatic.TrimmomaticPE -threads 1 -phred33 -trimlog ' +trimmomatic_input + '.trimLog.txt '
-    trailParams = ' ILLUMINACLIP:/Users/d.brown6/Bioinformatics/Trimmomatic-0.22/IlluminaAdapters.fa:2:40:15 LEADING:20 TRAILING:20 MINLEN:50'
+    trailParams = ' ILLUMINACLIP:/Users/d.brown6/Bioinformatics/Trimmomatic-0.22/IlluminaAdapters.fa:2:40:15 LEADING:20 TRAILING:20 MINLEN:100'
     commTrim = headParams + classPath + trimOptions + infile + ' ' + trimResultFile + trailParams
     
     print commTrim
     #os.system(commTrim)
     #touch file indicates success. It should be empty if there was success
-    open(flagFile , 'w') 
-
+    finished = time.strftime('%X %x %Z') 
+    open(flagFile , 'w').write(finished)
+    
 #88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
 
 #   Main logic
