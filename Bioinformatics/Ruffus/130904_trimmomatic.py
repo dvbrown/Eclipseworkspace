@@ -30,8 +30,6 @@ if __name__ == '__main__':
 
     parser = OptionParser(version="%prog 1.0", usage = "\n\n    %progs [options]")
 
-
-
     #
     #   general options: verbosity / logging
     #
@@ -137,102 +135,51 @@ if __name__ == '__main__':
 #88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
 
 from ruffus import *
-
+import subprocess
 
 #88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
 
 #   Functions
 
-
-#88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
-
+def run_cmd(cmd_str):
+    """
+    Throw exception if run command fails
+    """
+    process = subprocess.Popen(cmd_str, stdout = subprocess.PIPE,
+                                stderr = subprocess.PIPE, shell = True)
+    stdout_str, stderr_str = process.communicate()
+    if process.returncode != 0:
+        raise Exception("Failed to run '%s'\n%s%sNon-zero exit status %s" %
+                            (cmd_str, stdout_str, stderr_str, process.returncode))
 
 #88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
 
 #   Logger
 
+#88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
+
+import logging
+logger = logging.getLogger("run_parallel_blast")
+#
+# We are interesting in all messages
+#
+if options.verbose:
+    logger.setLevel(logging.DEBUG)
+    stderrhandler = logging.StreamHandler(sys.stderr)
+    stderrhandler.setFormatter(logging.Formatter("    %(message)s"))
+    stderrhandler.setLevel(logging.DEBUG)
+    logger.addHandler(stderrhandler)
 
 #88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
 
-#if __name__ == '__main__':
-#    import logging
-#    import logging.handlers
-#
-#    MESSAGE = 15
-#    logging.addLevelName(MESSAGE, "MESSAGE")
-#
-#    def setup_std_logging (logger, log_file, verbose):
-#        """
-#        set up logging using programme options
-#        """
-#        class debug_filter(logging.Filter):
-#            """
-#            Ignore INFO messages
-#            """
-#            def filter(self, record):
-#                return logging.INFO != record.levelno
-#
-#        class NullHandler(logging.Handler):
-#            """
-#            for when there is no logging
-#            """
-#            def emit(self, record):
-#                pass
-#
-#        # We are interesting in all messages
-#        logger.setLevel(logging.DEBUG)
-#        has_handler = False
-#
-#        # log to file if that is specified
-#        if log_file:
-#            handler = logging.FileHandler(log_file, delay=False)
-#            handler.setFormatter(logging.Formatter("%(asctime)s - %(name)s - %(levelname)6s - %(message)s"))
-#            handler.setLevel(MESSAGE)
-#            logger.addHandler(handler)
-#            has_handler = True
-#
-#        # log to stderr if verbose
-#        if verbose:
-#            stderrhandler = logging.StreamHandler(sys.stderr)
-#            stderrhandler.setFormatter(logging.Formatter("    %(message)s"))
-#            stderrhandler.setLevel(logging.DEBUG)
-#            if log_file:
-#                stderrhandler.addFilter(debug_filter())
-#            logger.addHandler(stderrhandler)
-#            has_handler = True
-#
-#        # no logging
-#        if not has_handler:
-#            logger.addHandler(NullHandler())
-
-
-    #
-    #   set up log DANIEL CAN'T GET THIS TO WORK
-    #
-#    logger = logging.getLogger(module_name)
-#    setup_std_logging(logger, options.log_file, options.verbose)
-#
-#    #
-#    #   Allow logging across Ruffus pipeline
-#    #
-#    def get_logger (logger_name, args):
-#        return logger
-#
-#    from ruffus.proxy_logger import *
-#    (logger_proxy,
-#     logging_mutex) = make_shared_logger_and_proxy (get_logger,
-#                                                    module_name,
-#                                                    {})
-
-
-#88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
 
 #   Pipeline
 
 
 #88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
 
-#       Put pipeline code here
+###############################Put pipeline code here#####################################
+
 os.chdir('/Users/d.brown6/Documents/RNAdata/danBatch1/')
 trimmomatic_input = options.input_file
 
@@ -253,25 +200,39 @@ def trimmomatic(infile, outfiles): #more params):
     finished = time.strftime('%X %x %Z') 
     open(flagFile , 'w').write(finished)
     
+
+
+
+
+
+
+
 #88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
 
-#   Main logic
+#   Print list of tasks
 
 #88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
-if __name__ == '__main__':
-    if options.just_print:
-        pipeline_printout(sys.stdout, options.target_tasks)# options.forced_tasks, verbose=options.verbose)
+if options.just_print:
+    pipeline_printout(sys.stdout, options.target_tasks, verbose=options.verbose)
 
-    elif options.flowchart:
-        pipeline_printout_graph (   open(options.flowchart, "w"),
-                                    # use flowchart file name extension to decide flowchart format
-                                    #   e.g. svg, jpg etc.
-                                    os.path.splitext(options.flowchart)[1][1:],
-                                    options.target_tasks,
-                                    options.forced_tasks,
-                                    no_key_legend   = not options.key_legend_in_graph)
-    else:
-        pipeline_run(options.target_tasks, options.forced_tasks,
-                            multiprocess    = options.jobs,
-                            logger          = stderr_logger,
-                            verbose         = options.verbose)
+
+#88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
+
+#   Print flowchart
+
+#88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
+elif options.flowchart:
+    # use file extension for output format
+    output_format = os.path.splitext(options.flowchart)[1][1:]
+    pipeline_printout_graph (open(options.flowchart, "w"),
+                             output_format,
+                             options.target_tasks,
+                             no_key_legend = True)
+#88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
+
+#   Run Pipeline
+
+#88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
+else:
+    pipeline_run(options.target_tasks,  multiprocess = options.jobs,
+                        logger = logger, verbose=options.verbose)
