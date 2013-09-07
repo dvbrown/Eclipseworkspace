@@ -45,10 +45,12 @@ if __name__ == '__main__':
     #   pipeline options
     #
     parser.add_option("-i", "--input_file", dest="input_file",
+                        action="append",
                         default = list(),
                         metavar="FILE",
                         type="string",
-                        help="The file to use as input")
+                        help="""The file(s) to use as input. If there are multiple 
+                        files use the -i argument multiple times""")
     parser.add_option("-t", "--target_tasks", dest="target_tasks",
                         action="append",
                         default = list(),
@@ -187,18 +189,24 @@ trimmomatic_input = options.input_file
 
 @transform(trimmomatic_input, suffix(".fq"), [".trim.fq", ".trimmSuccess"]) #added touch file
 def trimmomatic(infile, outfiles): #more params):
-    trimResultFile, flagFile = outfiles
-    headParams = 'java -Xmx4g -classpath ' 
-    classPath = '/Users/d.brown6/Bioinformatics/Trimmomatic-0.22/trimmomatic-0.22.jar '
-    trimOptions = 'org.usadellab.trimmomatic.TrimmomaticPE -threads 1 -phred33 -trimlog ' +trimmomatic_input + '.trimLog.txt '
-    trailParams = ' ILLUMINACLIP:/Users/d.brown6/Bioinformatics/Trimmomatic-0.22/IlluminaAdapters.fa:2:40:15 LEADING:20 TRAILING:20 MINLEN:100'
-    commTrim = headParams + classPath + trimOptions + infile + ' ' + trimResultFile + trailParams
+    #read1, read2 = infile
+    print infile
     
-    print commTrim
-    #os.system(commTrim)
-    #touch file indicates success. It should be empty if there was success
-    finished = time.strftime('%X %x %Z') 
-    open(flagFile , 'w').write(finished)
+    #I think Ruffus beleives I am entering a single file on command line
+    
+#    trimResultFile, flagFile = outfiles
+#    headParams = 'java -Xmx4g -classpath ' 
+#    classPath = '/Users/d.brown6/Bioinformatics/Trimmomatic-0.22/trimmomatic-0.22.jar '
+#    trimOptions = 'org.usadellab.trimmomatic.TrimmomaticPE -threads 1 -phred33 -trimlog ' +trimmomatic_input + '.trimLog.txt '
+#    trailParams = ' ILLUMINACLIP:/Users/d.brown6/Bioinformatics/Trimmomatic-0.22/IlluminaAdapters.fa:2:40:15 LEADING:20 TRAILING:20 MINLEN:100'
+#    commTrim = headParams + classPath + trimOptions + read1 + read2 + \
+#    ' ' + trimResultFile + trailParams
+#    
+#    print commTrim
+#    #os.system(commTrim)
+#    #touch file indicates success. It should be empty if there was success
+#    finished = time.strftime('%X %x %Z') 
+#    open(flagFile , 'w').write(finished)
     
 
 
