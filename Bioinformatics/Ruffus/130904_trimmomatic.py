@@ -12,8 +12,7 @@
                         [--forced_tasks]
 
 """
-import sys, os
-import subprocess
+import sys, os, re
 import time
 
 #88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
@@ -183,35 +182,37 @@ if options.verbose:
 ###############################Put pipeline code here#####################################
 
 os.chdir('/Users/d.brown6/Documents/RNAdata/danBatch1/')
-trimmomatic_input = options.input_file
+trimInput = options.input_file
 
 #@follows(mkdir("./trimFastqs")) Can make a new directory and put output there
 
-@transform(trimmomatic_input, suffix(".fq"), [".trim.fq", ".trimmSuccess"]) #added touch file
-def trimmomatic(infile, outfiles): #more params):
-    #read1, read2 = infile
-    print infile
+@transform(trimInput, suffix(".gz"), [".trim.gz", ".trimmSuccess.txt"]) #added touch file
+def trimmomatic(read1, outFiles):
+    read2 = re.sub('R1','R2', read1)
+    #split the output and touchFile
+    trimRead1, flagFile = outFiles
+    trimRead2 = re.sub('R1','R2', trimRead1)
+    unpair1 = read1 + 'unpair'
+    unpair2 = read2 + 'unpair'
+    headParams = 'java -Xmx4g -classpath ' 
+    classPath = '/Users/d.brown6/Bioinformatics/Trimmomatic-0.22/trimmomatic-0.22.jar '
+    trimOptions = 'org.usadellab.trimmomatic.TrimmomaticPE -threads 1 -phred33 -trimlog ' + read1 + '.trimLog.txt '
+    trailParams = ' ILLUMINACLIP:/Users/d.brown6/Bioinformatics/Trimmomatic-0.22/IlluminaAdapters.fa:2:40:15 LEADING:20 TRAILING:20 MINLEN:100'
+    #merri = 
+    #------------------------------build shell command-------------------------------------  
+    commTrim = headParams + classPath + trimOptions + read1 + ' ' + read2 +\
+    ' ' + trimRead1 + ' ' + unpair1 + ' ' + trimRead2 + ' ' + unpair2 + ' ' + trailParams
+    #--------------------------------------------------------------------------------------
     
-    #I think Ruffus beleives I am entering a single file on command line
-    
-#    trimResultFile, flagFile = outfiles
-#    headParams = 'java -Xmx4g -classpath ' 
-#    classPath = '/Users/d.brown6/Bioinformatics/Trimmomatic-0.22/trimmomatic-0.22.jar '
-#    trimOptions = 'org.usadellab.trimmomatic.TrimmomaticPE -threads 1 -phred33 -trimlog ' +trimmomatic_input + '.trimLog.txt '
-#    trailParams = ' ILLUMINACLIP:/Users/d.brown6/Bioinformatics/Trimmomatic-0.22/IlluminaAdapters.fa:2:40:15 LEADING:20 TRAILING:20 MINLEN:100'
-#    commTrim = headParams + classPath + trimOptions + read1 + read2 + \
-#    ' ' + trimResultFile + trailParams
-#    
-#    print commTrim
-#    #os.system(commTrim)
-#    #touch file indicates success. It should be empty if there was success
-#    finished = time.strftime('%X %x %Z') 
-#    open(flagFile , 'w').write(finished)
-    
+    started = time.strftime('%X %x %Z')
+    print 'running task trimmomatic at {0}'.format(started)
+    print commTrim
+    #run the command
+    os.system(commTrim)
 
-
-
-
+    #touch file indicates success. It should be empty if there was success 
+    finished = time.strftime('%X %x %Z')
+    open(flagFile , 'w').write(finished)
 
 
 
@@ -221,7 +222,7 @@ def trimmomatic(infile, outfiles): #more params):
 
 #88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
 if options.just_print:
-    pipeline_printout(sys.stdout, options.target_tasks, verbose=options.verbose)
+    pipeline_printout(sys.stdout, [trimmomatic], verbose=options.verbose)
 
 
 #88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
