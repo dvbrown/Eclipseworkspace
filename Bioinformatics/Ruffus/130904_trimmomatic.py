@@ -33,7 +33,7 @@ if __name__ == '__main__':
     #   general options: verbosity / logging
     #
     parser.add_option("-v", "--verbose", dest = "verbose",
-                      action="count", default=0,
+                      action="count", default=1,
                       help="Print more verbose messages for each additional verbose level.")
     parser.add_option("-L", "--log_file", dest="log_file",
                       metavar="FILE",
@@ -186,7 +186,7 @@ trimInput = options.input_file
 
 #@follows(mkdir("./trimFastqs")) Can make a new directory and put output there
 
-@transform(trimInput, suffix(".gz"), [".trim.gz", ".trimmSuccess.txt"]) #added touch file
+@transform(trimInput, suffix(".fastq"), [".trim.fastq", ".trimmSuccess.txt"]) #added touch file
 def trimmomatic(read1, outFiles):
     read2 = re.sub('R1','R2', read1)
     #split the output and touchFile
@@ -197,8 +197,8 @@ def trimmomatic(read1, outFiles):
     headParams = 'java -Xmx4g -classpath ' 
     classPath = '/Users/d.brown6/Bioinformatics/Trimmomatic-0.22/trimmomatic-0.22.jar '
     trimOptions = 'org.usadellab.trimmomatic.TrimmomaticPE -threads 1 -phred33 -trimlog ' + read1 + '.trimLog.txt '
-    trailParams = ' ILLUMINACLIP:/Users/d.brown6/Bioinformatics/Trimmomatic-0.22/IlluminaAdapters.fa:2:40:15 LEADING:20 TRAILING:20 MINLEN:100'
-    #merri = 
+    trailParams = ' ILLUMINACLIP:/Users/d.brown6/Bioinformatics/Trimmomatic-0.22/IlluminaAdaptersCustom.fa:2:40:15 LEADING:20 TRAILING:20 MINLEN:100'
+ 
     #------------------------------build shell command-------------------------------------  
     commTrim = headParams + classPath + trimOptions + read1 + ' ' + read2 +\
     ' ' + trimRead1 + ' ' + unpair1 + ' ' + trimRead2 + ' ' + unpair2 + ' ' + trailParams
@@ -208,7 +208,7 @@ def trimmomatic(read1, outFiles):
     print 'running task trimmomatic at {0}'.format(started)
     print commTrim
     #run the command
-    os.system(commTrim)
+    #os.system(commTrim)
 
     #touch file indicates success. It should be empty if there was success 
     finished = time.strftime('%X %x %Z')
