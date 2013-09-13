@@ -213,7 +213,7 @@ os.chdir('/Users/d.brown6/Documents/RNAdata/danBatch1/')
 
 unzipInput = options.input_file
 
-@transform(unzipInput, suffix('.gz'), ['.fastq', 'unzipSuccess.txt'])
+@transform(unzipInput, suffix('.gz'), ['.trim', 'unzipSuccess.txt'])
 def unzip(input1, outFiles):
     input2 = re.sub('R1','R2', input1)
     output, flagFile = outFiles
@@ -223,13 +223,23 @@ def unzip(input1, outFiles):
     #touch file indicates success. It should be have the completion time if there was success 
     finished = time.strftime('%X %x %Z')
     open(flagFile , 'w').write(finished)
+    
+@follows(unzip)
+def moveFiles():
+    unzipped = unzipInput[0].strip('.gz')
+    input2 = re.sub('R1','R2', unzipped)
+    comm = 'mv ' + unzipped + ' ../trimFastq/' + unzipped + '.fastq'
+    print comm
+    os.system(comm) 
+    comm2 = 'mv ' + input2 + ' ../trimFastq/' + input2 + '.fastq'
+    os.system(comm2)
 
 #alignInput = options.input_file
 #Hard code file locations for aligner. Change for Merri
-#refTranscriptome = '/Users/d.brown6/Documents/public-datasets/annotationFiles/genes.gtf'
-#refGenome = '/Users/d.brown6/Documents/public-datasets/annotationFiles/mrna.fa'
+#refTranscriptome = '/vlsci/VR0002/shared/Reference_Files/Indexed_Ref_Genomes/TuxedoSuite_Ref_Files/Homo_sapiens/Ensembl/GRCh37/Annotation/Genes/genes.gtf'
+#refGenome = '/vlsci/VR0002/shared/Reference_Files/Indexed_Ref_Genomes/TuxedoSuite_Ref_Files/Homo_sapiens/Ensembl/GRCh37/Sequence/Bowtie2Index/genome'
 
-#@follows(unzip)
+#@follows(moveFiles)
 #@transform(alignInput, suffix(".fastq"), [".topHat", ".alignSuccess.txt"])
 #def align(read1, outFiles):
 #    read2 = re.sub('R1','R2', read1)
