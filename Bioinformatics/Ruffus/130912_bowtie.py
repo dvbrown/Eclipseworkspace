@@ -181,7 +181,7 @@ if options.verbose:
 
 ###############################Put pipeline code here#####################################
 
-os.chdir('/Users/d.brown6/Documents/RNAdata/danBatch1/')
+
 
 #@transform(trimInput, suffix(".fastq"), [".trim.fastq", ".trimmSuccess.txt"]) #added touch file
 #def trimmomatic(read1, outFiles):
@@ -210,10 +210,10 @@ os.chdir('/Users/d.brown6/Documents/RNAdata/danBatch1/')
 #    #touch file indicates success. It should be empty if there was success 
 #    finished = time.strftime('%X %x %Z')
 #    open(flagFile , 'w').write(finished)
-
+#
 unzipInput = options.input_file
 
-@transform(unzipInput, suffix('.gz'), ['.trim', 'unzipSuccess.txt'])
+@transform(unzipInput, suffix('.gz'), [r'../trimFastq/\1.fastq', 'unzipSuccess.txt'])
 def unzip(input1, outFiles):
     input2 = re.sub('R1','R2', input1)
     output, flagFile = outFiles
@@ -224,31 +224,34 @@ def unzip(input1, outFiles):
     finished = time.strftime('%X %x %Z')
     open(flagFile , 'w').write(finished)
     
-@follows(unzip)
-def moveFiles():
-    unzipped = unzipInput[0].strip('.gz')
-    input2 = re.sub('R1','R2', unzipped)
-    comm = 'mv ' + unzipped + ' ../trimFastq/' + unzipped + '.fastq'
-    print comm
-    os.system(comm) 
-    comm2 = 'mv ' + input2 + ' ../trimFastq/' + input2 + '.fastq'
-    os.system(comm2)
+#@follows(unzip)
+#def moveFiles():
+#    unzipped = unzipInput[0].strip('.gz')
+#    input2 = re.sub('R1','R2', unzipped)
+#    comm = 'mv ' + unzipped + ' ../trimFastq/' + unzipped + '.fastq'
+#    print comm
+#    os.system(comm) 
+#    comm2 = 'mv ' + input2 + ' ../trimFastq/' + input2 + '.fastq'
+#    os.system(comm2)
 
-#alignInput = options.input_file
+os.chdir('/Users/d.brown6/Documents/RNAdata/danBatch1/trimFastq')
+alignInput = options.input_file
 
 #Hard code file locations for aligner. Change for Merri
 refGenome = '/vlsci/VR0002/shared/Reference_Files/Indexed_Ref_Genomes/bowtie_Indexed/human_g1k_v37'
 
-@follows(moveFiles)
-@transform(alignInput, suffix(".fastq"), [".bowtie.bam", ".alignSuccess.txt"], rgID)
-def align([read1, read2], outFiles):
+#@follows(moveFiles)
+@transform(alignInput, suffix(".fastq"), [r'bowtie2Align/\1.bowtie.bam', ".alignSuccess.txt"])
+def align(read1, outFiles):
+    'Emit the aigned files in the bowtie2AlignDirectory'
     read2 = re.sub('R1','R2', read1)
+    rgID = read1[0:7]
     #split the output and touchFile
     output, flagFile = outFiles
      #------------------------------build shell command-------------------------------------
     headParams = 'bowtie2 --local --rg-id ' + rgID
-    midParams = '-p 8 -N 1 -L 20 -i S,1,0.75 -k 6 --maxins 450 --no-mixed'
-    tailParams = '-x ' + $referenceGenome + ' -1 ' + read1 + ' ' + read2 + ' -S ' + output
+    midParams = ' -p 8 -N 1 -L 20 -i S,1,0.75 -k 6 --maxins 450 --no-mixed'
+    tailParams = '-x ' + refGenome + ' -1 ' + read1 + ' ' + read2 + ' -S ' + output
     comm = headParams + midParams + tailParams
     #---------------------------------------------------------------------------------------  
     started = time.strftime('%X %x %Z')
