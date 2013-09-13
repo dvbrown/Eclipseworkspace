@@ -211,47 +211,38 @@ if options.verbose:
 #    finished = time.strftime('%X %x %Z')
 #    open(flagFile , 'w').write(finished)
 #
-unzipInput = options.input_file
-
-@transform(unzipInput, suffix('.gz'), [r'../trimFastq/\1.fastq', 'unzipSuccess.txt'])
-def unzip(input1, outFiles):
-    input2 = re.sub('R1','R2', input1)
-    output, flagFile = outFiles
-    comm = 'gunzip ' + input1 + ' ' + input2
-    print comm
-    os.system(comm) 
-    #touch file indicates success. It should be have the completion time if there was success 
-    finished = time.strftime('%X %x %Z')
-    open(flagFile , 'w').write(finished)
-    
-#@follows(unzip)
-#def moveFiles():
-#    unzipped = unzipInput[0].strip('.gz')
-#    input2 = re.sub('R1','R2', unzipped)
-#    comm = 'mv ' + unzipped + ' ../trimFastq/' + unzipped + '.fastq'
+#unzipInput = options.input_file
+#
+#@transform(unzipInput, suffix('.gz'), [r'../trimFastq/\1.fastq', 'unzipSuccess.txt'])
+#def unzip(input1, outFiles):
+#    input2 = re.sub('R1','R2', input1)
+#    output, flagFile = outFiles
+#    comm = 'gunzip ' + input1 + ' ' + input2
 #    print comm
 #    os.system(comm) 
-#    comm2 = 'mv ' + input2 + ' ../trimFastq/' + input2 + '.fastq'
-#    os.system(comm2)
+#    #touch file indicates success. It should be have the completion time if there was success 
+#    finished = time.strftime('%X %x %Z')
+#    open(flagFile , 'w').write(finished)
 
 os.chdir('/Users/d.brown6/Documents/RNAdata/danBatch1/trimFastq')
 alignInput = options.input_file
 
-#Hard code file locations for aligner. Change for Merri
+#Hard code reference file locations for aligner. Change for Merri. human_g1k_v37.rev.1.bt2
 refGenome = '/vlsci/VR0002/shared/Reference_Files/Indexed_Ref_Genomes/bowtie_Indexed/human_g1k_v37'
 
-#@follows(moveFiles)
+#@follows(unzip)
 @transform(alignInput, suffix(".fastq"), [r'bowtie2Align/\1.bowtie.bam', ".alignSuccess.txt"])
 def align(read1, outFiles):
-    'Emit the aigned files in the bowtie2AlignDirectory'
+    'Emit the aligned files in the bowtie2AlignDirectory. Used local mode with default settigs. Pipe output to samtools to produce a sorted bam file'
     read2 = re.sub('R1','R2', read1)
     rgID = read1[0:7]
     #split the output and touchFile
     output, flagFile = outFiles
-     #------------------------------build shell command-------------------------------------
-    headParams = 'bowtie2 --local --rg-id ' + rgID
-    midParams = ' -p 8 -N 1 -L 20 -i S,1,0.75 -k 6 --maxins 450 --no-mixed'
-    tailParams = '-x ' + refGenome + ' -1 ' + read1 + ' ' + read2 + ' -S ' + output
+    #------------------------------build shell command--------------------------------------
+    alignNotes = "Local alignment (soft-clipping), report best alignment"
+    headParams = 'bowtie2 --local -p 8 --rg-id ' + rgID
+    midParams = ' -x ' + refGenome + ' -1 ' + read1 + ' -2 ' + read2
+    tailParams = ' | samtools view -bS - ' + output
     comm = headParams + midParams + tailParams
     #---------------------------------------------------------------------------------------  
     started = time.strftime('%X %x %Z')
@@ -279,7 +270,7 @@ if options.just_print:
 #88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
 elif options.flowchart:
     # use file extension for output format
-    output_format = os.path.splitext(options.flowchart)[1][1:]
+    output_format = 'os.path.splitext(options.flowchart)[1][1:]'
     pipeline_printout_graph (open(options.flowchart, "w"),
                              output_format,
                              options.target_tasks,
