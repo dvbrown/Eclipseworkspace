@@ -183,17 +183,54 @@ if options.verbose:
 ###############################Put pipeline code here#####################################
 
 os.chdir('/Users/d.brown6/Documents/RNAdata/danBatch1/trimFastq')
-alignInput = options.input_file
+inputFile = options.input_file
 #Hard code reference file locations for aligner. Change for Merri. human_g1k_v37.rev.1.bt2
 refGenome = '/vlsci/VR0002/shared/Reference_Files/Indexed_Ref_Genomes/bowtie_Indexed/human_g1k_v37'
+refTranscriptome ='/vlsci/VR0002/shared/Reference_Files/Indexed_Ref_Genomes/TuxedoSuite_Ref_Files/Homo_sapiens/Ensembl/GRCh37/Annotation/Genes/genes.gtf'
+rRNA = './hg19_ribosome_gene_locations.list' #find this file
 
 #@transform(trimInput, suffix(".fastq"), [".trim.fastq", ".trimmSuccess.txt"]) #added touch file
 #def trimReads(read1, outFiles):
 #    tasks.tritrimmomatic(read1, outFiles)
 
-@transform(alignInput, suffix(".fastq"), [r'bowtie2Align/\1.bowtie.bam', ".alignSuccess.txt"])
-def align(read1, outFiles):
-    tasks.align(read1, outFiles)
+#@transform(inputFile, suffix(".fastq"), [r'bowtie2Align/\1.bowtie.bam', ".alignSuccess.txt"])
+#def align(inputFile, outFiles):
+#    'Emit the aligned files in the bowtie2AlignDirectory. Used local mode with default settigs. Pipe output to samtools to produce a sorted bam file'
+#    tasks.bowtie2(read1, outFiles)
+
+@transform(inputFile, suffix(".bam"), '.indexSucess.txt')
+def indexPostAlign(inputFile, touchFile):
+    'After aligning, index the bam file so sortbam will be much faster'
+    tasks.indexSamtools(inputFile, touchFile)
+
+@follows(indexPostAlign)
+@transform(inputFile, suffix(".bam"), ['.sort.bam', ".sortSuccess.txt"])
+def sortBam(inputFile, outFiles):
+    'Sort the bam file by coordinate, using the bowtie reference for markduplicates'
+    bamFile = inputFile.strip('.bai')
+    tasks.reorderSam(bamFile, outFiles)
+ 
+ 
+@follows(sortBam)   
+@transform(inputFile, suffix(".bam"), '.indexSucess.txt')
+def indexPostSort(inputFile, touchFile):
+    'Index the sorted bam file for use by mark dupilcates'
+    tasks.indexSamtools(inputFile, touchFile)
+    
+    
+@follows(indexPostSort)
+@transform(inputFile, suffix(".bam"), ['.sort.bam', ".sortSuccess.txt"])
+def deDup(inputFile, outFiles):
+    'Mark PCR duplicates, they are not removed'
+    bamFile = inputFile.strip('.bai')
+    tasks.markDuplicates(bamFile, outFiles)
+    
+
+@follows(deDup)   
+@transform(inputFile, suffix(".bam"), ['.rnaSeqc', ".alignQC.txt"])
+def alignmentQC(inputFile, outFiles):
+    'Check alignments before proceeding with downstream analysis with RNAseQC'
+    tasks.rnaSeQC(inputFile, outFiles)
     
 #88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
 
