@@ -181,8 +181,6 @@ if options.verbose:
 
 ###############################Put pipeline code here#####################################
 
-
-
 #@transform(trimInput, suffix(".fastq"), [".trim.fastq", ".trimmSuccess.txt"]) #added touch file
 #def trimmomatic(read1, outFiles):
 #    read2 = re.sub('R1','R2', read1)
@@ -242,14 +240,14 @@ def align(read1, outFiles):
     alignNotes = "Local alignment (soft-clipping), report best alignment"
     headParams = 'bowtie2 --local -p 8 --rg-id ' + rgID
     midParams = ' -x ' + refGenome + ' -1 ' + read1 + ' -2 ' + read2
-    tailParams = ' | samtools view -bS - ' + output
+    tailParams = ' | samtools view -bS -o ' + output + ' -'
     comm = headParams + midParams + tailParams
     #---------------------------------------------------------------------------------------  
     started = time.strftime('%X %x %Z')
     print 'running task trimmomatic at {0}'.format(started)
     print comm
     #run the command
-    #os.system(commTrim)
+    #os.system(comm)
     #touch file indicates success. It should be have the completion time if there was success 
     finished = time.strftime('%X %x %Z')
     open(flagFile , 'w').write(finished)
