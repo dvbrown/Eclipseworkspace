@@ -190,22 +190,30 @@ inputFile = options.input_file
 #    'Emit the aligned files in the bowtie2AlignDirectory. Used local mode with default settigs. Pipe output to samtools to produce a sorted bam file'
 #    tasks.bowtie2(read1, outFiles)
 
-@transform(inputFile, suffix(".bam"), '.indexSucess.txt')
-def indexPostAlign(inputFile, touchFile):
-    'After aligning, index the bam file so sortbam will be much faster'
-    tasks.indexSamtools(inputFile, touchFile)
 
-@follows(indexPostAlign)
-@transform(inputFile, suffix(".bam"), ['.sort.bam', ".sortSuccess.txt"])
+@transform(inputFile, suffix(".bam"), [".header.bam", "headerSuccess.txt"])
+def addReadGroupHeader(inputFile, outFiles): 
+    'Any broad institute tools needs a RG group. Treat this merged bam file as a single sample'
+    tasks.addOrReplaceReadGroups(inputFile, outFiles)
+    
+
+@transform(addReadGroupHeader, suffix(".bam"), '.indexSucess.txt')
+def indexPostHeader(inputFile, touchFile):
+    'After aligning, index the bam file so sortbam will be much faster'
+    tasks.indexSamtools(inputFile[0], touchFile)
+
+
+@follows(indexPostHeader)
+@transform(addReadGroupHeader, suffix(".bam"), ['.sort.bam', ".sortSuccess.txt"])
 def sortBamCoordinate(inputFile, outFiles):
     'Sort the bam file by coordinate, using the bowtie reference for markduplicates \n'
-    tasks.reorderSam(inputFile, outFiles)
- 
+    tasks.reorderSam(inputFile[0], outFiles)
+
        
 @transform(sortBamCoordinate, suffix(".bam"), ['.dedup.bam', ".deDupSuccess.txt"])
 def deDuplicate(inputFile, outFiles):
     'Mark PCR duplicates, they are not removed'
-    tasks.markDuplicates(inputFile[0], outFiles)
+    tasks.markDuplicates(inputFile, outFiles)
 
   
 @transform(deDuplicate, suffix(".bam"), '.indexSucess.txt')

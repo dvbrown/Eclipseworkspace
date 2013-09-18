@@ -75,13 +75,31 @@ def indexSamtools(bamFile, touchFile):
     open(touchFile , 'w').write(finished)
 
 
+def addOrReplaceReadGroups(bamFile, outFiles):
+    output, flagFile = outFiles
+    RGID = bamFile[0:26]
+    RGSM = bamFile[0:7]
+    #------------------------------build shell command--------------------------------------
+    headParams = 'java -Xmx2g -jar /usr/local/picard/1.96/lib/AddOrReplaceReadGroups.jar INPUT='
+    tailParams = ' SORT_ORDER=coordinate ' + 'RGID=' + RGID + ' RGLB=RNA RGPL=ILLUMINA RGPU=FLOWCELL001 RGSM='
+    comm = headParams + RGID + tailParams + RGSM
+    #---------------------------------------------------------------------------------------  
+    started = time.strftime('%X %x %Z')
+    print 'running task addReplace header at {0}'.format(started)
+    print comm
+    #run the command
+    #os.system(comm)
+    #touch file indicates success. It should be have the completion time if there was success 
+    finished = time.strftime('%X %x %Z')
+    open(flagFile , 'w').write(finished)
+    
     
 def markDuplicates(bamFile, outFiles):
     output, flagFile = outFiles
     #------------------------------build shell command--------------------------------------
     headParams = 'java -Xmx4g -jar /usr/local/picard/1.96/lib/MarkDuplicates.jar INPUT=' 
     tailParams = ' METRICS_FILE=duplicates.txt ASSUME_SORTED=true'
-    comm = headParams + bamFile + ' OUTPUT=' + output + tailParams
+    comm = headParams + bamFile[0] + ' OUTPUT=' + output + tailParams
     #---------------------------------------------------------------------------------------  
     started = time.strftime('%X %x %Z')
     print 'running task markDuplicates at {0}'.format(started)
