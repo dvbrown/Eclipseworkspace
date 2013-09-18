@@ -28,6 +28,7 @@ def trimmomatic(read1, outFiles):
     finished = time.strftime('%X %x %Z')
     open(flagFile , 'w').write(finished)
 
+
 def unzip(input1, outFiles):
     input2 = re.sub('R1','R2', input1)
     output, flagFile = outFiles
@@ -62,7 +63,7 @@ def bowtie2(read1, outFiles):
     
 def indexSamtools(bamFile, touchFile):
     #------------------------------build shell command--------------------------------------
-    comm = 'samtools-gcc/0.1.18; samtools index ' + bamFile
+    comm = 'samtools index ' + bamFile
     started = time.strftime('%X %x %Z')
     #---------------------------------------------------------------------------------------  
     print 'running task indexSamtools at {0}'.format(started)
@@ -78,7 +79,7 @@ def indexSamtools(bamFile, touchFile):
 def markDuplicates(bamFile, outFiles):
     output, flagFile = outFiles
     #------------------------------build shell command--------------------------------------
-    headParams = 'java -Xmx2g -jar /usr/local/picard/1.69/lib/MarkDuplicates.jar INPUT=' 
+    headParams = 'java -Xmx4g -jar /usr/local/picard/1.96/lib/MarkDuplicates.jar INPUT=' 
     tailParams = ' METRICS_FILE=duplicates.txt ASSUME_SORTED=true'
     comm = headParams + bamFile + ' OUTPUT=' + output + tailParams
     #---------------------------------------------------------------------------------------  
@@ -96,7 +97,7 @@ def markDuplicates(bamFile, outFiles):
 def reorderSam(bamFile, outFiles):
     output, flagFile = outFiles
     #------------------------------build shell command--------------------------------------
-    params = 'java -Xmx2g -jar /usr/local/picard/1.69/lib/ReorderSam.jar INPUT='
+    params = 'java -Xmx4g -jar /usr/local/picard/1.96/lib/ReorderSam.jar INPUT='
     comm = params + bamFile + ' OUTPUT=' + output + ' REFERENCE' + refGenomeSortSam
     #---------------------------------------------------------------------------------------  
     started = time.strftime('%X %x %Z')
