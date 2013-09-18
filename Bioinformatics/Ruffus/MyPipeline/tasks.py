@@ -69,7 +69,7 @@ def indexSamtools(bamFile, touchFile):
     print 'running task indexSamtools at {0}'.format(started)
     print comm
     #run the command
-    os.system(comm)
+    #os.system(comm)
     #touch file indicates success. It should be have the completion time if there was success 
     finished = time.strftime('%X %x %Z')
     open(touchFile , 'w').write(finished)
@@ -87,7 +87,7 @@ def markDuplicates(bamFile, outFiles):
     print 'running task markDuplicates at {0}'.format(started)
     print comm
     #run the command
-    os.system(comm)
+    #os.system(comm)
     #touch file indicates success. It should be have the completion time if there was success 
     finished = time.strftime('%X %x %Z')
     open(flagFile , 'w').write(finished)
@@ -98,13 +98,13 @@ def reorderSam(bamFile, outFiles):
     output, flagFile = outFiles
     #------------------------------build shell command--------------------------------------
     params = 'java -Xmx4g -jar /usr/local/picard/1.96/lib/ReorderSam.jar INPUT='
-    comm = params + bamFile + ' OUTPUT=' + output + ' REFERENCE' + refGenomeSortSam
+    comm = params + bamFile + ' OUTPUT=' + output + ' REFERENCE=' + refGenomeSortSam
     #---------------------------------------------------------------------------------------  
     started = time.strftime('%X %x %Z')
     print 'running task reorderSam at {0}'.format(started)
     print comm
     #run the command
-    os.system(comm)
+    #os.system(comm)
     #touch file indicates success. It should be have the completion time if there was success 
     finished = time.strftime('%X %x %Z')
     open(flagFile , 'w').write(finished)
@@ -115,15 +115,15 @@ def rnaSeQC(bamFile, outFiles):
     output, flagFile = outFiles
     sampleFile = bamFile[0:7] + '|' + bamFile + '|' + 'Notes'
     #------------------------------build shell command--------------------------------------
-    headParams = 'java -jar -mx1024m /vlsci/VR0002/shared/rnaseqc-1.1.7/RNA-SeQC_v1.1.7.jar -o '
-    tailParams = output[0:7] + ' -r ' + refGenome + ' -rRNA ' + rRNA
+    headParams = 'java -Xmx4g -jar /vlsci/VR0002/shared/rnaseqc-1.1.7/RNA-SeQC_v1.1.7.jar -o '
+    tailParams = output[0:7] + ' -r ' + refGenomeSortSam + ' -rRNA ' + rRNA
     comm = headParams + tailParams + ' -s ' + sampleFile
     #---------------------------------------------------------------------------------------
     started = time.strftime('%X %x %Z')
     print 'running task rnaSeQC at {0}'.format(started)
     print comm
     #run the command
-    os.system(comm)
+    #os.system(comm)
     #touch file indicates success. It should be have the completion time if there was success 
     finished = time.strftime('%X %x %Z')
     open(flagFile , 'w').write(finished)
