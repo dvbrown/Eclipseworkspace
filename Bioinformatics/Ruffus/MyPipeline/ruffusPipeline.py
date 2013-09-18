@@ -203,31 +203,27 @@ def indexPostAlign(inputFile, touchFile):
     'After aligning, index the bam file so sortbam will be much faster'
     tasks.indexSamtools(inputFile, touchFile)
 
-@follows(indexPostAlign)
-@transform(inputFile, suffix(".bam"), ['.sort.bam', ".sortSuccess.txt"])
+@transform(indexPostAlign, suffix(".bai"), ['.sort.bam', ".sortSuccess.txt"])
 def sortBam(inputFile, outFiles):
     'Sort the bam file by coordinate, using the bowtie reference for markduplicates'
     bamFile = inputFile.strip('.bai')
     tasks.reorderSam(bamFile, outFiles)
  
- 
-@follows(sortBam)   
-@transform(inputFile, suffix(".bam"), '.indexSucess.txt')
+   
+@transform(sortBam, suffix(".sort.bam"), '.indexSucess.txt')
 def indexPostSort(inputFile, touchFile):
     'Index the sorted bam file for use by mark dupilcates'
     tasks.indexSamtools(inputFile, touchFile)
     
     
-@follows(indexPostSort)
-@transform(inputFile, suffix(".bam"), ['.sort.bam', ".sortSuccess.txt"])
+@transform(indexPostSort, suffix(".bai"), ['.dedup.bam', ".sortSuccess.txt"])
 def deDup(inputFile, outFiles):
     'Mark PCR duplicates, they are not removed'
     bamFile = inputFile.strip('.bai')
     tasks.markDuplicates(bamFile, outFiles)
     
-
-@follows(deDup)   
-@transform(inputFile, suffix(".bam"), ['.rnaSeqc', ".alignQC.txt"])
+  
+@transform(deDup, suffix(".bam"), ['.rnaSeqc', ".alignQC.txt"])
 def alignmentQC(inputFile, outFiles):
     'Check alignments before proceeding with downstream analysis with RNAseQC'
     tasks.rnaSeQC(inputFile, outFiles)
