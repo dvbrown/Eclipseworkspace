@@ -161,7 +161,7 @@ def run_cmd(cmd_str):
 #88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
 
 import logging
-logger = logging.getLogger("run_parallel_blast")
+logger = logging.getLogger(options.target_tasks)
 #
 # We are interesting in all messages
 #
@@ -178,16 +178,11 @@ if options.verbose:
 #   Pipeline
 
 
-#88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
-
 ###############################Put pipeline code here#####################################
 
-os.chdir('/Users/d.brown6/Documents/RNAdata/danBatch1/trimFastq')
 inputFile = options.input_file
 #Hard code reference file locations for aligner. Change for Merri. human_g1k_v37.rev.1.bt2
-refGenome = '/vlsci/VR0002/shared/Reference_Files/Indexed_Ref_Genomes/bowtie_Indexed/human_g1k_v37'
-refTranscriptome ='/vlsci/VR0002/shared/Reference_Files/Indexed_Ref_Genomes/TuxedoSuite_Ref_Files/Homo_sapiens/Ensembl/GRCh37/Annotation/Genes/genes.gtf'
-rRNA = './hg19_ribosome_gene_locations.list' #find this file
+
 
 #@transform(trimInput, suffix(".fastq"), [".trim.fastq", ".trimmSuccess.txt"]) #added touch file
 #def trimReads(read1, outFiles):
@@ -203,27 +198,27 @@ def indexPostAlign(inputFile, touchFile):
     'After aligning, index the bam file so sortbam will be much faster'
     tasks.indexSamtools(inputFile, touchFile)
 
-@transform(indexPostAlign, suffix(".bai"), ['.sort.bam', ".sortSuccess.txt"])
-def sortBam(inputFile, outFiles):
+@follows(indexPostAlign)
+@transform(inputFile, suffix(".bam"), ['.sort.bam', ".sortSuccess.txt"])
+def sortBamCoordinate(inputFile, outFiles):
     'Sort the bam file by coordinate, using the bowtie reference for markduplicates'
-    bamFile = inputFile.strip('.bai')
     tasks.reorderSam(bamFile, outFiles)
  
-   
-@transform(sortBam, suffix(".sort.bam"), '.indexSucess.txt')
-def indexPostSort(inputFile, touchFile):
+       
+@transform(sortBamCoordinate, suffix(".bam"), ['.dedup.bam', ".sortSuccess.txt"])
+def deDuplicate(inputFile, outFiles):
+    'Mark PCR duplicates, they are not removed'
+    tasks.markDuplicates(bamFile, outFiles)
+
+  
+@transform(deDuplicate, suffix(".sort.bam"), '.indexSucess.txt')
+def indexDedup(inputFile, touchFile):
     'Index the sorted bam file for use by mark dupilcates'
     tasks.indexSamtools(inputFile, touchFile)
+
     
-    
-@transform(indexPostSort, suffix(".bai"), ['.dedup.bam', ".sortSuccess.txt"])
-def deDup(inputFile, outFiles):
-    'Mark PCR duplicates, they are not removed'
-    bamFile = inputFile.strip('.bai')
-    tasks.markDuplicates(bamFile, outFiles)
-    
-  
-@transform(deDup, suffix(".bam"), ['.rnaSeqc', ".alignQC.txt"])
+@follows(indexDedup)  
+@transform(deDuplicate, suffix(".dedup.bam"), ['.rnaSeqc', ".alignQC.txt"])
 def alignmentQC(inputFile, outFiles):
     'Check alignments before proceeding with downstream analysis with RNAseQC'
     tasks.rnaSeQC(inputFile, outFiles)
@@ -244,7 +239,7 @@ if options.just_print:
 #88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
 elif options.flowchart:
     # use file extension for output format
-    output_format = 'os.path.splitext(options.flowchart)[1][1:]'
+    output_format = os.path.splitext(options.flowchart)[1][1:]
     pipeline_printout_graph (open(options.flowchart, "w"),
                              output_format,
                              options.target_tasks,

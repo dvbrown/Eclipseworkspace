@@ -1,3 +1,8 @@
+import time, os, re
+refGenome = '/vlsci/VR0002/shared/Reference_Files/Indexed_Ref_Genomes/bowtie_Indexed/human_g1k_v37'
+refTranscriptome ='/vlsci/VR0002/shared/Reference_Files/Indexed_Ref_Genomes/TuxedoSuite_Ref_Files/Homo_sapiens/Ensembl/GRCh37/Annotation/Genes/genes.gtf'
+rRNA = './hg19_ribosome_gene_locations.list' #find this file
+
 def trimmomatic(read1, outFiles):
     read2 = re.sub('R1','R2', read1)
     #split the output and touchFile
@@ -22,7 +27,6 @@ def trimmomatic(read1, outFiles):
     finished = time.strftime('%X %x %Z')
     open(flagFile , 'w').write(finished)
 
-
 def unzip(input1, outFiles):
     input2 = re.sub('R1','R2', input1)
     output, flagFile = outFiles
@@ -32,7 +36,6 @@ def unzip(input1, outFiles):
     #touch file indicates success. It should be have the completion time if there was success 
     finished = time.strftime('%X %x %Z')
     open(flagFile , 'w').write(finished)
-
 
 
 def bowtie2(read1, outFiles):
@@ -54,8 +57,7 @@ def bowtie2(read1, outFiles):
     #touch file indicates success. It should be have the completion time if there was success 
     finished = time.strftime('%X %x %Z')
     open(flagFile , 'w').write(finished)
-    
-    
+      
     
 def indexSamtools(bamFile, touchFile):
     #------------------------------build shell command--------------------------------------
@@ -65,7 +67,7 @@ def indexSamtools(bamFile, touchFile):
     print 'running task indexSamtools at {0}'.format(started)
     print comm
     #run the command
-    os.system(comm)
+    #os.system(comm)
     #touch file indicates success. It should be have the completion time if there was success 
     finished = time.strftime('%X %x %Z')
     open(touchFile , 'w').write(finished)
@@ -83,7 +85,7 @@ def markDuplicates(bamFile, outFiles):
     print 'running task markDuplicates at {0}'.format(started)
     print comm
     #run the command
-    os.system(comm)
+    #os.system(comm)
     #touch file indicates success. It should be have the completion time if there was success 
     finished = time.strftime('%X %x %Z')
     open(flagFile , 'w').write(finished)
@@ -100,7 +102,7 @@ def reorderSam(bamFile, outFiles):
     print 'running task reorderSam at {0}'.format(started)
     print comm
     #run the command
-    os.system(comm)
+    #os.system(comm)
     #touch file indicates success. It should be have the completion time if there was success 
     finished = time.strftime('%X %x %Z')
     open(flagFile , 'w').write(finished)
