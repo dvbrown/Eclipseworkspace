@@ -12,8 +12,7 @@
                         [--forced_tasks]
 
 """
-import sys, os, re
-import time
+import sys, os
 import tasks
 
 #88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
@@ -178,11 +177,9 @@ if options.verbose:
 #   Pipeline
 
 
-###############################Put pipeline code here#####################################
+#################################    PIPELINE CODE GOES HERE    #####################################
 
 inputFile = options.input_file
-#Hard code reference file locations for aligner. Change for Merri. human_g1k_v37.rev.1.bt2
-
 
 #@transform(trimInput, suffix(".fastq"), [".trim.fastq", ".trimmSuccess.txt"]) #added touch file
 #def trimReads(read1, outFiles):
@@ -201,27 +198,27 @@ def indexPostAlign(inputFile, touchFile):
 @follows(indexPostAlign)
 @transform(inputFile, suffix(".bam"), ['.sort.bam', ".sortSuccess.txt"])
 def sortBamCoordinate(inputFile, outFiles):
-    'Sort the bam file by coordinate, using the bowtie reference for markduplicates'
-    tasks.reorderSam(bamFile, outFiles)
+    'Sort the bam file by coordinate, using the bowtie reference for markduplicates \n'
+    tasks.reorderSam(inputFile, outFiles)
  
        
-@transform(sortBamCoordinate, suffix(".bam"), ['.dedup.bam', ".sortSuccess.txt"])
+@transform(sortBamCoordinate, suffix(".bam"), ['.dedup.bam', ".deDupSuccess.txt"])
 def deDuplicate(inputFile, outFiles):
     'Mark PCR duplicates, they are not removed'
-    tasks.markDuplicates(bamFile, outFiles)
+    tasks.markDuplicates(inputFile[0], outFiles)
 
   
-@transform(deDuplicate, suffix(".sort.bam"), '.indexSucess.txt')
+@transform(deDuplicate, suffix(".bam"), '.indexSucess.txt')
 def indexDedup(inputFile, touchFile):
-    'Index the sorted bam file for use by mark dupilcates'
-    tasks.indexSamtools(inputFile, touchFile)
+    'Index the sorted bam file for use by mark duplicates'
+    tasks.indexSamtools(inputFile[0], touchFile)
 
     
 @follows(indexDedup)  
-@transform(deDuplicate, suffix(".dedup.bam"), ['.rnaSeqc', ".alignQC.txt"])
+@transform(deDuplicate, suffix(".dedup.bam"), ['.rnaSeqc', ".alignQcSucess.txt"])
 def alignmentQC(inputFile, outFiles):
     'Check alignments before proceeding with downstream analysis with RNAseQC'
-    tasks.rnaSeQC(inputFile, outFiles)
+    tasks.rnaSeQC(inputFile[0], outFiles)
     
 #88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
 

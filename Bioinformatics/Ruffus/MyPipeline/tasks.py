@@ -1,7 +1,8 @@
 import time, os, re
-refGenome = '/vlsci/VR0002/shared/Reference_Files/Indexed_Ref_Genomes/bowtie_Indexed/human_g1k_v37'
+refGenomeBowtie = '/vlsci/VR0002/shared/Reference_Files/Indexed_Ref_Genomes/bowtie_Indexed/human_g1k_v37'
+refGenomeSortSam = "/vlsci/VR0002/shared/Reference_Files/Indexed_Ref_Genomes/TuxedoSuite_Ref_Files/Homo_sapiens/Ensembl/GRCh37/Sequence/WholeGenomeFasta/genome.fa"
 refTranscriptome ='/vlsci/VR0002/shared/Reference_Files/Indexed_Ref_Genomes/TuxedoSuite_Ref_Files/Homo_sapiens/Ensembl/GRCh37/Annotation/Genes/genes.gtf'
-rRNA = './hg19_ribosome_gene_locations.list' #find this file
+rRNA = './hg19_ribosome_gene_locations.list'
 
 def trimmomatic(read1, outFiles):
     read2 = re.sub('R1','R2', read1)
@@ -45,7 +46,7 @@ def bowtie2(read1, outFiles):
     output, flagFile = outFiles
     #------------------------------build shell command--------------------------------------
     headParams = 'bowtie2 --local -p 8 --rg-id ' + rgID
-    midParams = ' -x ' + refGenome + ' -1 ' + read1 + ' -2 ' + read2
+    midParams = ' -x ' + refGenomeBowtie + ' -1 ' + read1 + ' -2 ' + read2
     tailParams = ' | samtools view -bS -o ' + output + ' -'
     comm = headParams + midParams + tailParams
     #---------------------------------------------------------------------------------------  
@@ -67,7 +68,7 @@ def indexSamtools(bamFile, touchFile):
     print 'running task indexSamtools at {0}'.format(started)
     print comm
     #run the command
-    #os.system(comm)
+    os.system(comm)
     #touch file indicates success. It should be have the completion time if there was success 
     finished = time.strftime('%X %x %Z')
     open(touchFile , 'w').write(finished)
@@ -85,7 +86,7 @@ def markDuplicates(bamFile, outFiles):
     print 'running task markDuplicates at {0}'.format(started)
     print comm
     #run the command
-    #os.system(comm)
+    os.system(comm)
     #touch file indicates success. It should be have the completion time if there was success 
     finished = time.strftime('%X %x %Z')
     open(flagFile , 'w').write(finished)
@@ -96,13 +97,13 @@ def reorderSam(bamFile, outFiles):
     output, flagFile = outFiles
     #------------------------------build shell command--------------------------------------
     params = 'java -Xmx2g -jar /usr/local/picard/1.69/lib/ReorderSam.jar INPUT='
-    comm = params + bamFile + ' OUTPUT=' + output + ' REFERENCE' + refGenome
+    comm = params + bamFile + ' OUTPUT=' + output + ' REFERENCE' + refGenomeSortSam
     #---------------------------------------------------------------------------------------  
     started = time.strftime('%X %x %Z')
     print 'running task reorderSam at {0}'.format(started)
     print comm
     #run the command
-    #os.system(comm)
+    os.system(comm)
     #touch file indicates success. It should be have the completion time if there was success 
     finished = time.strftime('%X %x %Z')
     open(flagFile , 'w').write(finished)
@@ -111,7 +112,7 @@ def reorderSam(bamFile, outFiles):
     
 def rnaSeQC(bamFile, outFiles):
     output, flagFile = outFiles
-    sampleFile = bamFile[0:7] + '|' + 'Notes'
+    sampleFile = bamFile[0:7] + '|' + bamFile + '|' + 'Notes'
     #------------------------------build shell command--------------------------------------
     headParams = 'java -jar -mx1024m /vlsci/VR0002/shared/rnaseqc-1.1.7/RNA-SeQC_v1.1.7.jar -o '
     tailParams = output[0:7] + ' -r ' + refGenome + ' -rRNA ' + rRNA
@@ -121,7 +122,7 @@ def rnaSeQC(bamFile, outFiles):
     print 'running task rnaSeQC at {0}'.format(started)
     print comm
     #run the command
-    #os.system(comm)
+    os.system(comm)
     #touch file indicates success. It should be have the completion time if there was success 
     finished = time.strftime('%X %x %Z')
     open(flagFile , 'w').write(finished)
