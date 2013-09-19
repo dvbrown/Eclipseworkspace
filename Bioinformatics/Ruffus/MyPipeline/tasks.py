@@ -69,7 +69,7 @@ def indexSamtools(bamFile, touchFile):
     print 'running task indexSamtools at {0}'.format(started)
     print comm
     #run the command
-    #os.system(comm)
+    os.system(comm)
     #touch file indicates success. It should be have the completion time if there was success 
     finished = time.strftime('%X %x %Z')
     open(touchFile , 'w').write(finished)
@@ -80,15 +80,15 @@ def addOrReplaceReadGroups(bamFile, outFiles):
     RGID = bamFile[0:26]
     RGSM = bamFile[0:7]
     #------------------------------build shell command--------------------------------------
-    headParams = 'java -Xmx2g -jar /usr/local/picard/1.96/lib/AddOrReplaceReadGroups.jar INPUT='
-    tailParams = ' SORT_ORDER=coordinate ' + 'RGID=' + RGID + ' RGLB=RNA RGPL=ILLUMINA RGPU=FLOWCELL001 RGSM='
-    comm = headParams + RGID + tailParams + RGSM
+    headParams = 'java -Xmx2g -jar /usr/local/picard/1.96/lib/AddOrReplaceReadGroups.jar VALIDATION_STRINGENCY=LENIENT INPUT='
+    tailParams = ' SORT_ORDER=coordinate ' + 'RGID=' + RGID + ' RGLB=RNA RGPL=ILLUMINA RGPU=H14NTADXX RGSM='
+    comm = headParams + bamFile + ' ' + 'OUTPUT=' + output + ' ' + tailParams + RGSM
     #---------------------------------------------------------------------------------------  
     started = time.strftime('%X %x %Z')
     print 'running task addReplace header at {0}'.format(started)
     print comm
     #run the command
-    #os.system(comm)
+    os.system(comm)
     #touch file indicates success. It should be have the completion time if there was success 
     finished = time.strftime('%X %x %Z')
     open(flagFile , 'w').write(finished)
@@ -105,7 +105,7 @@ def markDuplicates(bamFile, outFiles):
     print 'running task markDuplicates at {0}'.format(started)
     print comm
     #run the command
-    #os.system(comm)
+    os.system(comm)
     #touch file indicates success. It should be have the completion time if there was success 
     finished = time.strftime('%X %x %Z')
     open(flagFile , 'w').write(finished)
@@ -122,7 +122,7 @@ def reorderSam(bamFile, outFiles):
     print 'running task reorderSam at {0}'.format(started)
     print comm
     #run the command
-    #os.system(comm)
+    os.system(comm)
     #touch file indicates success. It should be have the completion time if there was success 
     finished = time.strftime('%X %x %Z')
     open(flagFile , 'w').write(finished)
@@ -141,7 +141,7 @@ def rnaSeQC(bamFile, outFiles):
     print 'running task rnaSeQC at {0}'.format(started)
     print comm
     #run the command
-    #os.system(comm)
+    os.system(comm)
     #touch file indicates success. It should be have the completion time if there was success 
     finished = time.strftime('%X %x %Z')
     open(flagFile , 'w').write(finished)
