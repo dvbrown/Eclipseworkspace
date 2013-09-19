@@ -233,12 +233,13 @@ refGenome = '/vlsci/VR0002/shared/Reference_Files/Indexed_Ref_Genomes/bowtie_Ind
 def align(read1, outFiles):
     'Emit the aligned files in the bowtie2AlignDirectory. Used local mode with default settigs. Pipe output to samtools to produce a sorted bam file'
     read2 = re.sub('R1','R2', read1)
-    rgID = read1[0:7]
+    rgSM = read1[0:7]
+    rgID = read1[0:14]
     #split the output and touchFile
     output, flagFile = outFiles
     #------------------------------build shell command--------------------------------------
     alignNotes = "Local alignment (soft-clipping), report best alignment"
-    headParams = 'bowtie2 --local -p 8 --rg-id ' + rgID
+    headParams = 'bowtie2 --local -p 8 --rg-id ' + rgID + ' --rg SM:' + rgSM + ' --rg LB:RNA --rg PL:ILLUMINA --rg PU:H14NTADXX'
     midParams = ' -x ' + refGenome + ' -1 ' + read1 + ' -2 ' + read2
     tailParams = ' | samtools view -bS -o ' + output + ' -'
     comm = headParams + midParams + tailParams
@@ -247,7 +248,7 @@ def align(read1, outFiles):
     print 'running task trimmomatic at {0}'.format(started)
     print comm
     #run the command
-    #os.system(comm)
+    os.system(comm)
     #touch file indicates success. It should be have the completion time if there was success 
     finished = time.strftime('%X %x %Z')
     open(flagFile , 'w').write(finished)
