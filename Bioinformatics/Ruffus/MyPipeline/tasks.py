@@ -1,7 +1,8 @@
 import time, os, re
 refGenome = '/vlsci/VR0002/shared/Reference_Files/Indexed_Ref_Genomes/bowtie_Indexed/human_g1k_v37'
+refGenomeSort = '/vlsci/VR0002/shared/Reference_Files/Indexed_Ref_Genomes/bowtie_Indexed/human_g1k_v37.fasta'
 rRNA = './hg19_ribosome_gene_locations.list'
-refTranscripts = 'vlsci/VR0002/shared/Reference_Files/human_UCSC_genes_v37_nochrprefix.gtf'
+refTranscripts = '/vlsci/VR0002/shared/Reference_Files/human_UCSC_genes_v37_nochrprefix.gtf'
 
 def trimmomatic(read1, outFiles):
     read2 = re.sub('R1','R2', read1)
@@ -131,7 +132,7 @@ def reorderSam(bamFile, outFiles):
     #------------------------------build shell command--------------------------------------
     headParams = 'java -Xmx10g /usr/local/picard/1.96/lib/ReorderSam.jar '
     midParams = 'CREATE_INDEX=true MAX_RECORDS_IN_RAM=750000 TMP_DIR=/vlsci/VR0238/shared/tmp '
-    tailParams = 'INPUT=' + bamFile + ' OUTPUT=' + output + ' REFERENCE=' + refGenome
+    tailParams = 'INPUT=' + bamFile + ' OUTPUT=' + output + ' REFERENCE=' + refGenomeSort
     comm = headParams + midParams + tailParams
     #---------------------------------------------------------------------------------------  
     started = time.strftime('%X %x %Z')
@@ -161,14 +162,14 @@ def rnaSeQC(bamFile, outFiles):
     sampleFile = `bamFile[0:7] + '|' + bamFile + '|' + 'Notes'`
     #------------------------------build shell command--------------------------------------
     headParams = 'java -Xmx4g -jar /vlsci/VR0002/shared/rnaseqc-1.1.7/RNA-SeQC_v1.1.7.jar -o ./'
-    tailParams = output[0:7] + ' -r ' + refGenome + ' -rRNA ' + rRNA + ' -t ' + refTranscripts
+    tailParams = output[0:7] + ' -r ' + refGenomeSort + ' -rRNA ' + rRNA + ' -t ' + refTranscripts
     comm = headParams + tailParams + ' -s ' + sampleFile
     #---------------------------------------------------------------------------------------
     started = time.strftime('%X %x %Z')
     print 'running task rnaSeQC at {0}'.format(started)
     print comm
     #run the command
-    #os.system(comm)
+    os.system(comm)
     #touch file indicates success. It should be have the completion time if there was success 
     finished = time.strftime('%X %x %Z')
     open(flagFile , 'w').write(finished)
