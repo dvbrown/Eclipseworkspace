@@ -59,6 +59,19 @@ def bowtie2(read1, outFiles):
     #touch file indicates success. It should be have the completion time if there was success 
     finished = time.strftime('%X %x %Z')
     open(flagFile , 'w').write(finished)
+
+  
+def sortSam(bamFile, outFiles):
+    output, flagFile = outFiles
+    comm = 'java -Xmx10g -jar /usr/local/picard/1.96/lib/SortSam.jar INPUT=' + bamFile + ' OUTPUT=' + output + ' SORT_ORDER=coordinate MAX_RECORDS_IN_RAM=1000000'
+    started = time.strftime('%X %x %Z')
+    print 'running task reorderSam at {0}'.format(started)
+    print comm
+    #run the command
+    os.system(comm)
+    #touch file indicates success. It should be have the completion time if there was success 
+    finished = time.strftime('%X %x %Z')
+    open(flagFile , 'w').write(finished)
       
     
 def indexSamtools(bamFile, touchFile):
@@ -97,9 +110,10 @@ def addOrReplaceReadGroups(bamFile, outFiles):
 def markDuplicates(bamFile, outFiles):
     output, flagFile = outFiles
     #------------------------------build shell command--------------------------------------
-    headParams = 'java -Xmx4g -jar /usr/local/picard/1.96/lib/MarkDuplicates.jar INPUT=' 
-    tailParams = ' METRICS_FILE=duplicates.txt ASSUME_SORTED=true'
-    comm = headParams + bamFile[0] + ' OUTPUT=' + output + tailParams
+    headParams = 'java -Xmx10g Djava.io.tmpdir=/vlsci/VR0238/shared/tmp -jar /usr/local/picard/1.96/lib/MarkDuplicates.jar INPUT=' 
+    tailParams = ' CREATE_INDEX=true MAX_RECORDS_IN_RAM=750000 TMP_DIR=/vlsci/VR0238/shared/tmp'
+    midParams = ' METRICS_FILE=duplicates.txt ASSUME_SORTED=true'
+    comm = headParams + bamFile + ' OUTPUT=' + output + midParams + tailParams
     #---------------------------------------------------------------------------------------  
     started = time.strftime('%X %x %Z')
     print 'running task markDuplicates at {0}'.format(started)
@@ -114,9 +128,12 @@ def markDuplicates(bamFile, outFiles):
 
 def reorderSam(bamFile, outFiles):
     output, flagFile = outFiles
+    #had to create a temporary directory in my account as the default one is likely full
     #------------------------------build shell command--------------------------------------
-    params = 'java -Xmx4g -jar /usr/local/picard/1.96/lib/ReorderSam.jar INPUT='
-    comm = params + bamFile + ' OUTPUT=' + output + ' REFERENCE=' + refGenomeSortSam
+    headParams = 'java -Xmx10g Djava.io.tmpdir=/vlsci/VR0238/shared/tmp -jar /usr/local/picard/1.96/lib/ReorderSam.jar '
+    midParams = 'CREATE_INDEX=true MAX_RECORDS_IN_RAM=750000 TMP_DIR=/vlsci/VR0238/shared/tmp '
+    tailParams = 'INPUT=' + bamFile + ' OUTPUT=' + output + ' CREATE_INDEX=true REFERENCE=' + refGenomeSortSam
+    comm = headParams + midParams + tailParams
     #---------------------------------------------------------------------------------------  
     started = time.strftime('%X %x %Z')
     print 'running task reorderSam at {0}'.format(started)
@@ -128,6 +145,17 @@ def reorderSam(bamFile, outFiles):
     open(flagFile , 'w').write(finished)
     
     
+def sortSamtools(bamFile, outFiles):
+    output, flagFile = outFiles
+    comm = 'samtools sort -o -m 8000000000 ' + bamFile + ' - > ' + output
+    started = time.strftime('%X %x %Z')
+    print 'running task reorderSam at {0}'.format(started)
+    print comm
+    #run the command
+    os.system(comm)
+    #touch file indicates success. It should be have the completion time if there was success 
+    finished = time.strftime('%X %x %Z')
+    open(flagFile , 'w').write(finished)
     
 def rnaSeQC(bamFile, outFiles):
     output, flagFile = outFiles
