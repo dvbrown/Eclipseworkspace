@@ -199,7 +199,7 @@ def sortSamtool(inputFile, outFiles):
 
 @transform(sortSamtool, suffix(""), '.indexSucess.txt')
 def indexSamSort(inputFile, touchFile):
-    'Index the sorted bam file for use by sort samtools'
+    'Index the sorted bam file for use by mark duplicates'
     tasks.indexSamtools(inputFile[0], touchFile)
 
 @follows(indexSamSort)
