@@ -7,7 +7,11 @@
 import sys
 import os
 import csv
-import itertools
+
+def average(value1, value2):
+    addtion = value1 + value2
+    result = addtion/2
+    return result
 
 #set up script
 os.chdir('/Users/d.brown6/Documents/FredCSC/reformattedFiles/preranked')
@@ -24,21 +28,30 @@ for row in files:
 dataHeader = data[0][:]
 data = data[1:]
 
-#sort the data
-dataSort = sorted(data)
+newDict = {}
+for line in data:
+    #fix empty values and NAs with a try except clause
+    try: 
+        line[1] = float(line[1])
+    except ValueError:
+            pass
+    #if the gene already exists in the dictionary average the values
+    if line[0] in newDict:
+        dupGene = line[0]
+        newDict[dupGene] = average(newDict[dupGene], line[1])
+        #print "duplicate " + dupGene + ' new value ' + str(newDict[dupGene])
+    #Append new genes to the dictionary
+    else:
+        newDict[line[0]] = line[1]
+
+#get rid of the empty key        
+del newDict['']
+del newDict['NA']
+        
+print '#ignoreThis'+'\t'+' '        
+for entry in newDict:
+    print entry+'\t'+str(newDict[entry])
 
 
-
-
-#result =[]
-#for i, j in x:
-#    if i[0] == j[0]:
-#        if i[1] > j[1]:
-#            result.append(i[0])
-#            result.append(i[1])
-#        else:
-#            result.append(i[0])
-#            result.append(j[1])
-#    else:
-#        result.append(j[0])
-#        result.append(j[1])
+ 
+    
