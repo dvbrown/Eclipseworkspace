@@ -185,24 +185,40 @@ if options.verbose:
 refGenome = '/vlsci/VR0002/shared/Reference_Files/Indexed_Ref_Genomes/bowtie_Indexed/human_g1k_v37'
 unzipInput = options.input_file
 
-@transform(unzipInput, suffix('.gz'), '.unzipSuccess.txt')
-def unzip(input1, outFile):
+@transform(unzipInput, suffix('.gz'), ['' ,'.unzipS.txt'])
+def unzip(input1, outFiles):
+    output, flagFile = outFiles
     input2 = re.sub('R1','R2', input1)
     comm = 'gunzip ' + input1 + ' ' + input2
     started = time.strftime('%X %x %Z')
     print '\n#############################  running task unzip at {0}'.format(started) + ' ##########################'
     print comm + '\n'
-    #os.system(comm) 
+    os.system(comm) 
     #touch file indicates success. It should be have the completion time if there was success 
     finished = time.strftime('%X %x %Z')
-    open(outFile , 'w').write(finished)
+    open(flagFile , 'w').write(finished)
 
-@follows(unzip)
-@transform(unzipInput, suffix(".gz"), [r'bowtie2Align/\1.bowtie.bam', ".alignSuccess.txt"])
+@transform(unzip, suffix(''), ['.fastq', '.renameS.txt'])
+def rename(input1, outFiles):
+    'Have to hack a change to the file name to append a fastq as bowtie will not otherwise read it'
+    output1, flagFile = outFiles
+    input2 = re.sub('R1','R2', input1[0])
+    output2 = re.sub('R1','R2', output1)
+    comm1 = 'mv ' + input1[0] + ' ' + output1
+    comm2 = 'mv ' + input2 + ' ' + output2
+    started = time.strftime('%X %x %Z')
+    print '\n############################# running task rename at {0}'.format(started) + ' ##########################'
+    os.system(comm1)
+    os.system(comm2)
+    #touch file indicates success. It should be have the completion time if there was success 
+    finished = time.strftime('%X %x %Z')
+    open(flagFile , 'w').write(finished)
+
+@transform(rename, suffix(".fastq"), [r'bowtie2Align/\1.bowtie.bam', ".alignSuccess.txt"])
 def align(input1, outFiles):
     '''Emit the aligned files in the bowtie2AlignDirectory. Used local mode with default settings.
     Pipe output to samtools to produce a sorted bam file'''
-    read1 = unzipInput[0].strip('.gz')
+    read1 = input1[0]
     read2 = re.sub('R1','R2', read1)
     rgSM = read1[0:7]
     rgID = read1[0:14]
@@ -218,7 +234,7 @@ def align(input1, outFiles):
     print '\n#############################  running task bowtie at {0}'.format(started) + ' ##########################'
     print comm + '\n'
     #run the command
-    #os.system(comm)
+    os.system(comm)
     #touch file indicates success. It should be have the completion time if there was success 
     finished = time.strftime('%X %x %Z')
     open(flagFile , 'w').write(finished)
