@@ -185,40 +185,40 @@ if options.verbose:
 refGenome = '/vlsci/VR0002/shared/Reference_Files/Indexed_Ref_Genomes/bowtie_Indexed/human_g1k_v37'
 unzipInput = options.input_file
 
-@transform(unzipInput, suffix('.gz'), 'unzipSuccess.txt')
-def unzip(input1, outFiles):
+@transform(unzipInput, suffix('.gz'), '.unzipSuccess.txt')
+def unzip(input1, outFile):
     input2 = re.sub('R1','R2', input1)
-    output, flagFile = outFiles
     comm = 'gunzip ' + input1 + ' ' + input2
-    print comm
-    os.system(comm) 
+    started = time.strftime('%X %x %Z')
+    print '\n#############################  running task unzip at {0}'.format(started) + ' ##########################'
+    print comm + '\n'
+    #os.system(comm) 
     #touch file indicates success. It should be have the completion time if there was success 
     finished = time.strftime('%X %x %Z')
-    open(flagFile , 'w').write(finished)
+    open(outFile , 'w').write(finished)
 
 @follows(unzip)
-@transform(unzipInput, suffix(".fastq"), [r'bowtie2Align/\1.bowtie.bam', ".alignSuccess.txt"])
+@transform(unzipInput, suffix(".gz"), [r'bowtie2Align/\1.bowtie.bam', ".alignSuccess.txt"])
 def align(input1, outFiles):
     '''Emit the aligned files in the bowtie2AlignDirectory. Used local mode with default settings.
     Pipe output to samtools to produce a sorted bam file'''
-    read1 = unzipInput.strip('.gz')
+    read1 = unzipInput[0].strip('.gz')
     read2 = re.sub('R1','R2', read1)
     rgSM = read1[0:7]
     rgID = read1[0:14]
     #split the output and touchFile
     output, flagFile = outFiles
     #------------------------------build shell command--------------------------------------
-    alignNotes = "Local alignment (soft-clipping), report best alignment"
     headParams = 'bowtie2 --local -p 8 --rg-id ' + rgID + ' --rg SM:' + rgSM + ' --rg LB:RNA --rg PL:ILLUMINA --rg PU:H14NTADXX'
     midParams = ' -x ' + refGenome + ' -1 ' + read1 + ' -2 ' + read2
     tailParams = ' | samtools view -bS -o ' + output + ' -'
     comm = headParams + midParams + tailParams
     #---------------------------------------------------------------------------------------  
     started = time.strftime('%X %x %Z')
-    print 'running task trimmomatic at {0}'.format(started)
-    print comm
+    print '\n#############################  running task bowtie at {0}'.format(started) + ' ##########################'
+    print comm + '\n'
     #run the command
-    os.system(comm)
+    #os.system(comm)
     #touch file indicates success. It should be have the completion time if there was success 
     finished = time.strftime('%X %x %Z')
     open(flagFile , 'w').write(finished)
