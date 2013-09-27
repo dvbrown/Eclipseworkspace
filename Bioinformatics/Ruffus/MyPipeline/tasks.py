@@ -4,6 +4,16 @@ refGenomeSort = '/vlsci/VR0002/shared/Reference_Files/Indexed_Ref_Genomes/bowtie
 rRNA = './hg19_ribosome_gene_locations.list'
 refTranscripts = '/vlsci/VR0002/shared/Reference_Files/human_UCSC_genes_v37_nochrprefix.gtf'
 
+def runJob(comm, taskName, flagFile):
+    started = time.strftime('%X %x %Z')
+    print '\n############################# RUNNNG TASK ' + taskName + 'at {0}'.format(started) + ' ##########################'
+    print comm + '\n'
+    #run the command
+    os.system(comm)
+    #touch file indicates success. It should be empty if there was success 
+    finished = time.strftime('%X %x %Z')
+    open(flagFile , 'w').write(finished)
+
 def trimmomatic(read1, outFiles):
     read2 = re.sub('R1','R2', read1)
     #split the output and touchFile
@@ -60,7 +70,21 @@ def bowtie2(read1, outFiles):
     finished = time.strftime('%X %x %Z')
     open(flagFile , 'w').write(finished)
 
-  
+
+def mergeBams(bamFile, outFiles):
+    output, flagFile = outFiles
+    sample2 = re.sub('_L001_','_L002_', bamFile)
+    sample3 = re.sub('_001.','_002.', bamFile)
+    sample4 = re.sub('_001.','_002.', sample2)
+    #------------------------------build shell command--------------------------------------
+    headParams = 'java -Xmx10g -jar /usr/local/picard/1.96/lib/MergeSamFiles.jar'
+    midParams = ' INPUT=' + bamFile + ' INPUT=' + sample2 + ' INPUT=' + sample3 + ' INPUT=' + sample4
+    tailParams = ' CREATE_INDEX=true MAX_RECORDS_IN_RAM=750000 TMP_DIR=/vlsci/VR0238/shared/tmp'
+    comm = headParams + midParams + ' OUTPUT=' + output + tailParams
+    #---------------------------------------------------------------------------------------
+    runJob(comm, 'mergeBam', flagFile)
+
+ 
 def sortSam(bamFile, outFiles):
     output, flagFile = outFiles
     comm = 'java -Xmx10g -jar /usr/local/picard/1.96/lib/SortSam.jar INPUT=' + bamFile + ' OUTPUT=' + output + ' SORT_ORDER=coordinate MAX_RECORDS_IN_RAM=1000000'
