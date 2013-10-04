@@ -189,11 +189,16 @@ inputFile = options.input_file
 #def align(inputFile, outFiles):
 #    'Emit the aligned files in the bowtie2AlignDirectory. Used local mode with default settigs. Pipe output to samtools to produce a sorted bam file'
 #    tasks.bowtie2(read1, outFiles)
-  
 
-@transform(inputFile, suffix(".bam"), ['.sortS.bam', ".sortSuccess.txt"])
+@transform(inputFile, suffix(".bam"), ['.merged.bam','mergeSuccess.txt'])
+def mergeAlignments(inputFile, outFiles):
+    'Take the 2 lanes and 2 parts per lane data and merge them together into a single bam file'
+    tasks.mergeBams(inputFile, outFiles)
+
+
+@transform(mergeAlignments, suffix(".bam"), ['.sortS.bam', ".sortSuccess.txt"])
 def sortSamtool(inputFile, outFiles):
-    'Sort the bam file by samtools, using the bowtie reference for markduplicates \n'
+    'Sort the bam file by samtools, using the bowtie reference for markduplicates'
     tasks.sortSamtools(inputFile, outFiles)
 
 

@@ -1,13 +1,16 @@
 import time, os, re, subprocess
 
+# Global parameters
 refGenome = '/vlsci/VR0002/shared/Reference_Files/Indexed_Ref_Genomes/bowtie_Indexed/human_g1k_v37'
 refGenomeSort = '/vlsci/VR0002/shared/Reference_Files/Indexed_Ref_Genomes/bowtie_Indexed/human_g1k_v37.fasta'
 rRNA = './hg19_ribosome_gene_locations.list'
 refTranscripts = '/vlsci/VR0002/shared/Reference_Files/human_UCSC_genes_v37_nochrprefix.gtf'
 
 def runJob(comm, taskName, flagFile):
+    '''An internal function used by the rest of the functions to spawn a process in the shell, capture the standard output 
+    and generate a touch file. Runs the command in a shell and throws an exception when failure occurs'''
     started = time.strftime('%X %x %Z')
-    print '\n############################# RUNNNG TASK ' + taskName + 'at {0}'.format(started) + ' ##########################'
+    print '\n############################# RUNNNG TASK ' + taskName + ' at {0}'.format(started) + ' ##########################'
     print comm + '\n'
     #run the command
     subprocess.check_output(comm, stderr=subprocess.STDOUT, shell=True)
@@ -39,10 +42,10 @@ def unzip(input1, outFiles):
     output, flagFile = outFiles
     comm = 'gunzip ' + input1 + ' ' + input2
     print comm
-    os.system(comm) 
+    subprocess.check_output(comm, stderr=subprocess.STDOUT, shell=True) 
     #touch file indicates success. It should be have the completion time if there was success 
     runJob(comm, 'unzip', flagFile)
-
+    
 
 def bowtie2(read1, outFiles):
     read2 = re.sub('R1','R2', read1)
@@ -71,7 +74,17 @@ def mergeBams(bamFile, outFiles):
     #---------------------------------------------------------------------------------------
     runJob(comm, 'mergeBam', flagFile)
 
- 
+
+#def rename(fileToRename, outFiles):
+#    'This function renames the merged Bam file to start with a cleaner file name for downstream steps.'
+#    output, flagFile = outFiles
+#    #------------------------------build shell command--------------------------------------
+#    output = re.sub('_L001_R1_001.fastq','', fileToRename)
+#    comm = 'mv ' + fileToRename + ' ' + output
+#    #---------------------------------------------------------------------------------------  
+#    runJob(comm, 'rename file', flagFile)
+
+
 def sortSam(bamFile, outFiles):
     output, flagFile = outFiles
     comm = 'java -Xmx10g -jar /usr/local/picard/1.96/lib/SortSam.jar INPUT=' + bamFile + ' OUTPUT=' + output + ' SORT_ORDER=coordinate MAX_RECORDS_IN_RAM=1000000'
