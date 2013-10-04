@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 
-import subprocess
+import subprocess, os
 
-task = 'echo hello world > junk.txt'
+task = 'echox hello world > junk.txt'
 
-subprocess.check_output(task, stderr=subprocess.STDOUT, shell=True)
+#subprocess.check_output(task, stderr=subprocess.STDOUT, shell=True)
+os.system(task)
 
 nextTask = 'ls -lh > junk2.txt'
 
-subprocess.check_output(nextTask, stderr=subprocess.STDOUT, shell=True)
+#subprocess.check_output(nextTask, stderr=subprocess.STDOUT, shell=True)
+os.system(nextTask)
