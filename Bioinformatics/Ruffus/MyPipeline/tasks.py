@@ -10,10 +10,10 @@ def runJob(comm, taskName, flagFile):
     '''An internal function used by the rest of the functions to spawn a process in the shell, capture the standard output 
     and generate a touch file. Runs the command in a shell and throws an exception when failure occurs'''
     started = time.strftime('%X %x %Z')
-    print '\n############################# RUNNNG TASK ' + taskName + ' at {0}'.format(started) + ' ##########################'
+    print '\n################################################### RUNNNG TASK ' + taskName + ' at {0}'.format(started) + ' ###############################################'
     print comm + '\n'
     #run the command
-    subprocess.check_output(comm, stderr=subprocess.STDOUT, shell=True)
+    #subprocess.check_output(comm, stderr=subprocess.STDOUT, shell=True)
     #touch file indicates success. It should be empty if there was success 
     finished = time.strftime('%X %x %Z')
     open(flagFile , 'w').write(finished)
@@ -73,16 +73,6 @@ def mergeBams(bamFile, outFiles):
     comm = headParams + midParams + ' OUTPUT=' + output + tailParams
     #---------------------------------------------------------------------------------------
     runJob(comm, 'mergeBam', flagFile)
-
-
-#def rename(fileToRename, outFiles):
-#    'This function renames the merged Bam file to start with a cleaner file name for downstream steps.'
-#    output, flagFile = outFiles
-#    #------------------------------build shell command--------------------------------------
-#    output = re.sub('_L001_R1_001.fastq','', fileToRename)
-#    comm = 'mv ' + fileToRename + ' ' + output
-#    #---------------------------------------------------------------------------------------  
-#    runJob(comm, 'rename file', flagFile)
 
 
 def sortSam(bamFile, outFiles):
