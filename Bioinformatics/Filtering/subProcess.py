@@ -1,13 +1,18 @@
 #!/usr/bin/env python
 
-import subprocess, os
+import subprocess as sp
 
-task = 'echox hello world > junk.txt'
+task = 'echo hello world > junk.txt'
 
-#subprocess.check_output(task, stderr=subprocess.STDOUT, shell=True)
-os.system(task)
+print 'Please print this to the standard out'
+sp.check_call(task,  shell=True)
+#os.system(task)
 
-nextTask = 'ls -lh > junk2.txt'
+comm = 'ls'
+nextTask = ' -2'# > junk2.txt
+run = comm + nextTask
 
-#subprocess.check_output(nextTask, stderr=subprocess.STDOUT, shell=True)
-os.system(nextTask)
+value = sp.check_output(run, shell=True, stderr=sp.STDOUT)
+
+
+#os.system(nextTask)

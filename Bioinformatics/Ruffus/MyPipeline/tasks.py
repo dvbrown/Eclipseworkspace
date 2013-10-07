@@ -13,7 +13,7 @@ def runJob(comm, taskName, flagFile):
     print '\n################################################### RUNNNG TASK ' + taskName + ' at {0}'.format(started) + ' ###############################################'
     print comm + '\n'
     #run the command
-    #subprocess.check_output(comm, stderr=subprocess.STDOUT, shell=True)
+    subprocess.check_output(comm, stderr=subprocess.STDOUT ,shell=True)
     #touch file indicates success. It should be empty if there was success 
     finished = time.strftime('%X %x %Z')
     open(flagFile , 'w').write(finished)
@@ -130,7 +130,7 @@ def reorderSam(bamFile, outFiles):
     output, flagFile = outFiles
     #had to create a temporary directory in my account as the default one is likely full
     #------------------------------build shell command--------------------------------------
-    headParams = 'java -Xmx10g /usr/local/picard/1.96/lib/ReorderSam.jar '
+    headParams = 'java -Xmx10g -jar /usr/local/picard/1.96/lib/ReorderSam.jar '
     midParams = 'CREATE_INDEX=true MAX_RECORDS_IN_RAM=750000 TMP_DIR=/vlsci/VR0238/shared/tmp '
     tailParams = 'INPUT=' + bamFile + ' OUTPUT=' + output + ' REFERENCE=' + refGenomeSort
     comm = headParams + midParams + tailParams
