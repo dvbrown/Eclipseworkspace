@@ -148,7 +148,7 @@ def rnaSeQC(bamFile, outFiles):
     output, flagFile = outFiles
     sampleFile = repr(bamFile[0:7] + '|' + bamFile + '|' + 'Notes')
     #------------------------------build shell command--------------------------------------
-    headParams = 'java -Xmx4g -jar /vlsci/VR0002/shared/rnaseqc-1.1.7/RNA-SeQC_v1.1.7.jar -o ./'
+    headParams = 'java -Xmx10g -jar /vlsci/VR0002/shared/rnaseqc-1.1.7/RNA-SeQC_v1.1.7.jar -o ./'
     tailParams = output[0:7] + ' -r ' + refGenomeSort + ' -rRNA ' + rRNA + ' -t ' + refTranscripts
     comm = headParams + tailParams + ' -s ' + sampleFile
     #---------------------------------------------------------------------------------------

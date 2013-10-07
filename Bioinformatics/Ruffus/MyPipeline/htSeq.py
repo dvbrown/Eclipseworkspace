@@ -5,9 +5,9 @@ def htSeq(bamFile, outFiles):
     output, flagFile = outFiles
     # The input needs to be sorted by readname. Pipe from samtools to HTSeq
     #------------------------------build shell command--------------------------------------
-    headParams = 'samtools sort -no ' + bamFile +  repr(' - | samtools view -h |')
+    headParams = 'samtools sort -no ' + bamFile + ' - | samtools view -h |'
     tailParams = 'python -m HTSeq.scripts.count  --stranded=yes -m intersection-nonempty'
-    midParams = repr(' - ') + refTranscripts + repr(' > ') + output
+    midParams = ' - ' + refTranscripts + ' > ' + output
     comm = headParams + midParams + tailParams
     #---------------------------------------------------------------------------------------  
     runJob(comm, 'htSeq', flagFile)
