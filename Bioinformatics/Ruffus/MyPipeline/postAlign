@@ -11,8 +11,6 @@ def removeDuplicates(bamFile, outFiles):
     #---------------------------------------------------------------------------------------  
     runJob(comm, 'extractDuplicates', flagFile)
 
-
-
 def extractDuplicates(bamFile, outFiles):
     'Use the flag 0x400 to get the duplicated reads'
     output, flagFile = outFiles
