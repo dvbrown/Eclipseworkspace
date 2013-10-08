@@ -13,7 +13,8 @@ def runJob(comm, taskName, flagFile):
     print '\n################################################### RUNNNG TASK ' + taskName + ' at {0}'.format(started) + ' ###############################################'
     print comm + '\n'
     #run the command
-    subprocess.check_output(comm, stderr=subprocess.STDOUT ,shell=True)
+    #subprocess.check_output(comm, stderr=subprocess.STDOUT ,shell=True)
+    os.system(comm)
     #touch file indicates success. It should be empty if there was success 
     finished = time.strftime('%X %x %Z')
     open(flagFile , 'w').write(finished)
@@ -77,7 +78,7 @@ def mergeBams(bamFile, outFiles):
 
 def sortSam(bamFile, outFiles):
     output, flagFile = outFiles
-    comm = 'java -Xmx10g -jar /usr/local/picard/1.96/lib/SortSam.jar INPUT=' + bamFile + ' OUTPUT=' + output + ' SORT_ORDER=coordinate MAX_RECORDS_IN_RAM=1000000'
+    comm = 'java -Xmx4g -jar /usr/local/picard/1.96/lib/SortSam.jar INPUT=' + bamFile + ' OUTPUT=' + output + ' SORT_ORDER=coordinate MAX_RECORDS_IN_RAM=1000000'
     started = time.strftime('%X %x %Z')
     print 'running task reorderSam at {0}'.format(started)
     print comm
@@ -117,7 +118,7 @@ def addOrReplaceReadGroups(bamFile, outFiles):
 def markDuplicates(bamFile, outFiles):
     output, flagFile = outFiles
     #------------------------------build shell command--------------------------------------
-    headParams = 'java -Xmx10g -jar /usr/local/picard/1.96/lib/MarkDuplicates.jar INPUT=' 
+    headParams = 'java -Xmx4g -jar /usr/local/picard/1.96/lib/MarkDuplicates.jar INPUT=' 
     tailParams = ' CREATE_INDEX=true MAX_RECORDS_IN_RAM=750000 TMP_DIR=/vlsci/VR0238/shared/tmp'
     midParams = ' METRICS_FILE=duplicates.txt ASSUME_SORTED=true'
     comm = headParams + bamFile + ' OUTPUT=' + output + midParams + tailParams
@@ -130,7 +131,7 @@ def reorderSam(bamFile, outFiles):
     output, flagFile = outFiles
     #had to create a temporary directory in my account as the default one is likely full
     #------------------------------build shell command--------------------------------------
-    headParams = 'java -Xmx10g -jar /usr/local/picard/1.96/lib/ReorderSam.jar '
+    headParams = 'java -Xmx4g -jar /usr/local/picard/1.96/lib/ReorderSam.jar '
     midParams = 'CREATE_INDEX=true MAX_RECORDS_IN_RAM=750000 TMP_DIR=/vlsci/VR0238/shared/tmp '
     tailParams = 'INPUT=' + bamFile + ' OUTPUT=' + output + ' REFERENCE=' + refGenomeSort
     comm = headParams + midParams + tailParams
@@ -148,7 +149,7 @@ def rnaSeQC(bamFile, outFiles):
     output, flagFile = outFiles
     sampleFile = repr(bamFile[0:7] + '|' + bamFile + '|' + 'Notes')
     #------------------------------build shell command--------------------------------------
-    headParams = 'java -Xmx10g -jar /vlsci/VR0002/shared/rnaseqc-1.1.7/RNA-SeQC_v1.1.7.jar -o ./'
+    headParams = 'java -Xmx4g -jar /vlsci/VR0002/shared/rnaseqc-1.1.7/RNA-SeQC_v1.1.7.jar -o ./'
     tailParams = output[0:7] + ' -r ' + refGenomeSort + ' -rRNA ' + rRNA + ' -t ' + refTranscripts
     comm = headParams + tailParams + ' -s ' + sampleFile
     #---------------------------------------------------------------------------------------
