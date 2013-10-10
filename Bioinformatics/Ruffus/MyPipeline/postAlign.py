@@ -7,7 +7,7 @@ def removeDuplicates(bamFile, outFiles):
     'Use the flag 0x400 to remove the duplicated reads'
     output, flagFile = outFiles
     #------------------------------build shell command--------------------------------------
-    comm = 'samtools view -F 0x400 ' + bamFile + ' > ' + output
+    comm = 'samtools view -bh -F 0x400 ' + bamFile + ' > ' + output
     #---------------------------------------------------------------------------------------  
     runJob(comm, 'extractDuplicates', flagFile)
 
@@ -15,7 +15,7 @@ def extractDuplicates(bamFile, outFiles):
     'Use the flag 0x400 to get the duplicated reads'
     output, flagFile = outFiles
     #------------------------------build shell command--------------------------------------
-    comm = 'samtools view -f 0x400 ' + bamFile + ' > ' + output
+    comm = 'samtools view -bh -f 0x400 ' + bamFile + ' > ' + output
     #---------------------------------------------------------------------------------------  
     runJob(comm, 'removeDuplicates', flagFile) 
     

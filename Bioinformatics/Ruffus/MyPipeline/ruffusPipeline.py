@@ -228,7 +228,7 @@ def extractPCRduplicates(inputFile, outFiles):
     postAlign.extractDuplicates(inputFile, outFiles)
     
 @follows(extractPCRduplicates)
-@transform(inputFile, suffix(".dedup.bam"), [".getDup.bam",".getupSuccess.txt"])
+@transform(inputFile, suffix(".dedup.bam"), [".rmDup.bam",".rmDupSuccess.txt"])
 def removePCRduplicates(inputFile, outFiles):
     'Filter out the PCR duplicates'
     postAlign.removeDuplicates(inputFile, outFiles)
