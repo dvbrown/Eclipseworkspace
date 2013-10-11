@@ -26,8 +26,8 @@ def htSeq(bamFile, outFiles):
     #------------------------------build shell command--------------------------------------
     #remove -u command if uncompressed bam is not valid in sort
     headParams = 'samtools sort -no ' + bamFile + ' - | samtools view -h - | '
-    tailParams = 'python -m HTSeq.scripts.count  --stranded=yes -m intersection-nonempty'
-    midParams = ' - ' + refTranscripts + ' > ' + output
+    midParams = ' python -m HTSeq.scripts.count  --stranded=yes -m intersection-nonempty'
+    tailParams = ' - ' + refTranscripts + ' > ' + output
     comm = headParams + midParams + tailParams
     #---------------------------------------------------------------------------------------  
     runJob(comm, 'htSeq', flagFile)
