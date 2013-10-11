@@ -221,25 +221,41 @@ inputFile = options.input_file
 #def alignmentQC(inputFile, outFiles):
 #    'Check alignments before proceeding with downstream analysis with RNAseQC'
 #    tasks.rnaSeQC(inputFile[0], outFiles)
+#
+#@transform(inputFile, suffix(".dedup.bam"), [".getDup.bam",".getupSuccess.txt"])
+#def extractPCRduplicates(inputFile, outFiles):
+#    'Get the PCR duplicates to figure out if they are random or highly expressed genes'
+#    postAlign.extractDuplicates(inputFile, outFiles)
+#    
+#@follows(extractPCRduplicates)
+#@transform(inputFile, suffix(".dedup.bam"), [".rmDup.bam",".rmDupSuccess.txt"])
+#def removePCRduplicates(inputFile, outFiles):
+#    'Filter out the PCR duplicates'
+#    postAlign.removeDuplicates(inputFile, outFiles)
+#
+#@transform(extractPCRduplicates, suffix(""), '.indexSucess.txt')
+#def indexGetDup(inputFile, touchFile):
+#    tasks.indexSamtools(inputFile[0], touchFile)
+#    
+#@transform(removePCRduplicates, suffix(""), '.indexSucess.txt')
+#def indexRmDup(inputFile, touchFile):
+#    tasks.indexSamtools(inputFile[0], touchFile)
 
-@transform(inputFile, suffix(".dedup.bam"), [".getDup.bam",".getupSuccess.txt"])
-def extractPCRduplicates(inputFile, outFiles):
-    'Get the PCR duplicates to figure out if they are random or highly expressed genes'
-    postAlign.extractDuplicates(inputFile, outFiles)
+@transform(inputFile, suffix("bam"), [".gem.txt", "htSeqSucess.txt"])
+def countFeatures(inputFile, outFiles):
+    'Use HTSeq with the intersection-nonempty mode.'
+    postAlign.htSeq(inputFile, outFiles)
     
-@follows(extractPCRduplicates)
-@transform(inputFile, suffix(".dedup.bam"), [".rmDup.bam",".rmDupSuccess.txt"])
-def removePCRduplicates(inputFile, outFiles):
-    'Filter out the PCR duplicates'
-    postAlign.removeDuplicates(inputFile, outFiles)
-
-@transform(extractPCRduplicates, suffix(""), '.indexSucess.txt')
-def indexGetDup(inputFile, touchFile):
-    tasks.indexSamtools(inputFile[0], touchFile)
+@follows(countFeatures)
+@transform(inputFile, suffix("bam"), [".bed", "makeBEDSucess.txt"])
+def makeBED(inputFile, outFiles):
+    'Make a BED file for extra QCof alignments'
+    postAlign.bamToBed(inputFile, outFiles)
     
-@transform(removePCRduplicates, suffix(""), '.indexSucess.txt')
-def indexRmDup(inputFile, touchFile):
-    tasks.indexSamtools(inputFile[0], touchFile)
+@transform(makeBED, suffix("bed"), [".rRNA.bed", "intersectSuccess.txt"])
+def intersectrRNA(inputFile, outFiles):
+    'Measure the degree of overlap between rRNA bed file and sample'
+    postAlign.interSectBED(inputFile, outFiles)
 
 #88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
 

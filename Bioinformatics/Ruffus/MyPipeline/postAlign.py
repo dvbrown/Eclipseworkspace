@@ -1,9 +1,7 @@
-#refTranscripts = '/vlsci/VR0002/shared/Reference_Files/human_UCSC_genes_v37_nochrprefix.gtf'
+refTranscripts = '/vlsci/VR0002/shared/Reference_Files/human_UCSC_genes_v37_nochrprefix.gtf'
+rRnaBedFile = '/vlsci/VR0238/shared/DanB_batch1/trimFastq/bowtie2Align/mergeMarkDupBamhg19_rRNA.bed'
 
-refTranscripts = '/Users/d.brown6/Documents/public-datasets/annotationFiles/genes.gtf'
-rRnaBedFile = 'someFile' #Find the rRNA bed file
 from tasks import runJob
-
 
 def removeDuplicates(bamFile, outFiles):
     'Use the flag 0x400 to remove the duplicated reads'
@@ -35,7 +33,7 @@ def htSeq(bamFile, outFiles):
     runJob(comm, 'htSeq', flagFile)
     
     
-def makeBED(bamFile, outFiles):
+def bamToBed(bamFile, outFiles):
     output, flagFile = outFiles
     #------------------------------build shell command--------------------------------------
     comm = 'bamToBed -bedpe -i ' + bamFile + ' > ' + output
@@ -46,6 +44,6 @@ def makeBED(bamFile, outFiles):
 def interSectBED(bedFile, outFiles):
     output, flagFile = outFiles
     #------------------------------build shell command--------------------------------------
-    comm = 'pairToBed [OPTIONS] -a ' + bedFile + ' -b ' + output
+    comm = 'pairToBed -c -a ' + bedFile + ' -b ' + rRnaBedFile + ' > ' + output
     #---------------------------------------------------------------------------------------  
     runJob(comm, 'interSectBED', flagFile)
