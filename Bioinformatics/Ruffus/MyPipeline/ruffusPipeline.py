@@ -241,10 +241,15 @@ inputFile = options.input_file
 #def indexRmDup(inputFile, touchFile):
 #    tasks.indexSamtools(inputFile[0], touchFile)
 
-@transform(inputFile, suffix(".bam"), [".gem.txt", "htSeqSucess.txt"])
+@transform(inputFile, suffix(".bam"), [".sortName.bam", "sortNsucess.txt"])
+def sortReadName(inputFile, outFiles):
+    'sort the bam file by read name for use by HTSeq'
+    postAlign.sortName(inputFile, outFiles)
+
+@transform(sortReadName, suffix(".bam"), [".gem.txt", "htSeqSucess.txt"])
 def countFeatures(inputFile, outFiles):
     'Use HTSeq with the intersection-nonempty mode.'
-    postAlign.htSeq(inputFile, outFiles)
+    postAlign.htSeq(inputFile[0], outFiles)
     
 #@follows(countFeatures)
 #@transform(inputFile, suffix("bam"), [".bed", "makeBEDSucess.txt"])

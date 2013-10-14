@@ -20,13 +20,19 @@ def extractDuplicates(bamFile, outFiles):
     runJob(comm, 'removeDuplicates', flagFile) 
     
 
+def sortName(bamFile, outFiles):
+    output, flagFile = outFiles
+    #------------------------------build shell command--------------------------------------
+    comm = 'samtools sort -m 5000000000 -no ' + bamFile + ' - > ' + output
+    #---------------------------------------------------------------------------------------  
+    runJob(comm, 'sortReadName', flagFile)
+
+
 def htSeq(bamFile, outFiles):
     output, flagFile = outFiles
-    # The input needs to be sorted by readname. Pipe from samtools to HTSeq
     #------------------------------build shell command--------------------------------------
-    #remove -u command if uncompressed bam is not valid in sort
-    headParams = 'samtools sort -no ' + bamFile + ' - | samtools view -h - | '
-    midParams = ' python -m HTSeq.scripts.count  --stranded=yes -m intersection-nonempty'
+    headParams = 'samtools view -h ' + bamFile + ' | '
+    midParams = 'python -m HTSeq.scripts.count  --stranded=yes -m intersection-nonempty'
     tailParams = ' - ' + refTranscripts + ' > ' + output
     comm = headParams + midParams + tailParams
     #---------------------------------------------------------------------------------------  
