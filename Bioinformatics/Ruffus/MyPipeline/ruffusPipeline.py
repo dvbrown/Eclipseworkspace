@@ -246,16 +246,16 @@ def countFeatures(inputFile, outFiles):
     'Use HTSeq with the intersection-nonempty mode.'
     postAlign.htSeq(inputFile, outFiles)
     
-@follows(countFeatures)
-@transform(inputFile, suffix("bam"), [".bed", "makeBEDSucess.txt"])
-def makeBED(inputFile, outFiles):
-    'Make a BED file for extra QCof alignments'
-    postAlign.bamToBed(inputFile, outFiles)
-    
-@transform(makeBED, suffix("bed"), [".rRNA.bed", "intersectSuccess.txt"])
-def intersectrRNA(inputFile, outFiles):
-    'Measure the degree of overlap between rRNA bed file and sample'
-    postAlign.interSectBED(inputFile, outFiles)
+#@follows(countFeatures)
+#@transform(inputFile, suffix("bam"), [".bed", "makeBEDSucess.txt"])
+#def makeBED(inputFile, outFiles):
+#    'Make a BED file for extra QCof alignments'
+#    postAlign.bamToBed(inputFile, outFiles)
+#    
+#@transform(makeBED, suffix("bed"), [".rRNA.bed", "intersectSuccess.txt"])
+#def intersectrRNA(inputFile, outFiles):
+#    'Measure the degree of overlap between rRNA bed file and sample'
+#    postAlign.interSectBED(inputFile, outFiles)
 
 #88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
 
