@@ -1,4 +1,5 @@
-refTranscripts = '/vlsci/VR0238/shared/DanB_batch1/trimFastq/bowtie2Align/mergeMarkDupBam/ensGene.gtf'
+#refTranscripts = '/vlsci/VR0238/shared/DanB_batch1/trimFastq/bowtie2Align/mergeMarkDupBam/ensGene.gtf' TOO MANY UNCOUNTED FEATURES
+refTranscripts = '/vlsci/VR0002/shared/Reference_Files/Homo_sapiens.GRCh37.69.gtf'
 rRnaBedFile = '/vlsci/VR0238/shared/DanB_batch1/trimFastq/bowtie2Align/mergeMarkDupBam/hg19_rRNA.bed'
 
 from tasks import runJob
@@ -32,7 +33,7 @@ def htSeq(bamFile, outFiles):
     output, flagFile = outFiles
     #------------------------------build shell command--------------------------------------
     headParams = 'samtools view -h ' + bamFile + ' | '
-    midParams = 'python -m HTSeq.scripts.count  --stranded=reverse -m intersection-nonempty'
+    midParams = 'python -m HTSeq.scripts.count  --stranded=yes -m intersection-nonempty'
     tailParams = ' - ' + refTranscripts + ' > ' + output
     comm = headParams + midParams + tailParams
     #---------------------------------------------------------------------------------------  
