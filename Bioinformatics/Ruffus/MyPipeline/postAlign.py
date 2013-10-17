@@ -33,7 +33,7 @@ def htSeq(bamFile, outFiles):
     output, flagFile = outFiles
     #------------------------------build shell command--------------------------------------
     headParams = 'samtools view -h ' + bamFile + ' | '
-    midParams = 'python -m HTSeq.scripts.count  --stranded=yes -m intersection-nonempty'
+    midParams = 'python -m HTSeq.scripts.count  --stranded=no -m intersection-nonempty'
     tailParams = ' - ' + refTranscripts + ' > ' + output
     comm = headParams + midParams + tailParams
     #---------------------------------------------------------------------------------------  
