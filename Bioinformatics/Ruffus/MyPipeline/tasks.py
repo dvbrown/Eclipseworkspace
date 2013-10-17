@@ -4,7 +4,7 @@ import time, os, re, subprocess
 refGenome = '/vlsci/VR0002/shared/Reference_Files/Indexed_Ref_Genomes/bowtie_Indexed/human_g1k_v37'
 refGenomeSort = '/vlsci/VR0002/shared/Reference_Files/Indexed_Ref_Genomes/bowtie_Indexed/human_g1k_v37.fasta'
 rRNA = './hg19_ribosome_gene_locations.list'
-refTranscripts = '/vlsci/VR0002/shared/Reference_Files/human_UCSC_genes_v37_nochrprefix.gtf'
+#refTranscripts = '/vlsci/VR0002/shared/Reference_Files/human_UCSC_genes_v37_nochrprefix.gtf'
 
 def runJob(comm, taskName, flagFile):
     '''An internal function used by the rest of the functions to spawn a process in the shell, capture the standard output 

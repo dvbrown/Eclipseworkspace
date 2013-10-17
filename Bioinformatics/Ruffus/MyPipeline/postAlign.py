@@ -1,5 +1,5 @@
 #refTranscripts = '/vlsci/VR0238/shared/DanB_batch1/trimFastq/bowtie2Align/mergeMarkDupBam/ensGene.gtf' TOO MANY UNCOUNTED FEATURES
-refTranscripts = '/vlsci/VR0002/shared/Reference_Files/Homo_sapiens.GRCh37.69.gtf'
+refTranscripts = '/vlsci/VR0238/shared/DanB_batch1/trimFastq/bowtie2Align/mergeMarkDupBam/genes.gtf'
 rRnaBedFile = '/vlsci/VR0238/shared/DanB_batch1/trimFastq/bowtie2Align/mergeMarkDupBam/hg19_rRNA.bed'
 
 from tasks import runJob
@@ -38,8 +38,17 @@ def htSeq(bamFile, outFiles):
     comm = headParams + midParams + tailParams
     #---------------------------------------------------------------------------------------  
     runJob(comm, 'htSeq', flagFile)
-    
-    
+
+def featureCounts(bamFile, outFiles):
+    output, flagFile = outFiles
+    #------------------------------build shell command--------------------------------------
+    headParams = 'featureCounts -T 4 -b -p -a ' + refTranscripts + ' -t exon'
+    tailParams = ' -S -s 1 -g gene_id -o ' + output + ' ' + bamFile
+    comm = headParams + tailParams
+    #---------------------------------------------------------------------------------------  
+    runJob(comm, 'featureCounts', flagFile)
+
+
 def bamToBed(bamFile, outFiles):
     output, flagFile = outFiles
     #------------------------------build shell command--------------------------------------

@@ -246,7 +246,7 @@ def sortReadName(inputFile, outFiles):
     'sort the bam file by read name for use by HTSeq'
     postAlign.sortName(inputFile, outFiles)
 
-@transform(sortReadName, suffix(".bam"), [".gem.txt", "htSeqSucess.txt"])
+@transform(sortReadName, suffix(".bam"), [".HTgem.txt", ".htSucess.txt"])
 def countFeatures(inputFile, outFiles):
     'Use HTSeq with the intersection-nonempty mode.'
     postAlign.htSeq(inputFile[0], outFiles)
