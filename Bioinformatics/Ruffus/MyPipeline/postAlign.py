@@ -43,7 +43,7 @@ def featureCounts(bamFile, outFiles):
     output, flagFile = outFiles
     #------------------------------build shell command--------------------------------------
     headParams = 'featureCounts -T 4 -b -p -a ' + refTranscripts + ' -t exon'
-    tailParams = ' -S -s 1 -g gene_id -o ' + output + ' ' + bamFile
+    tailParams = ' -S -g gene_id -o ' + output + ' ' + bamFile
     comm = headParams + tailParams
     #---------------------------------------------------------------------------------------  
     runJob(comm, 'featureCounts', flagFile)
