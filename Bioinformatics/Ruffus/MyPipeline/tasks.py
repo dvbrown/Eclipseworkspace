@@ -4,7 +4,7 @@ import time, os, re, subprocess
 refGenome = '/vlsci/VR0002/shared/Reference_Files/Indexed_Ref_Genomes/bowtie_Indexed/human_g1k_v37'
 refGenomeSort = '/vlsci/VR0002/shared/Reference_Files/Indexed_Ref_Genomes/bowtie_Indexed/human_g1k_v37.fasta'
 rRNA = './hg19_ribosome_gene_locations.list'
-#refTranscripts = '/vlsci/VR0002/shared/Reference_Files/human_UCSC_genes_v37_nochrprefix.gtf'
+refTranscripts = '/vlsci/VR0238/shared/DanB_batch1/trimFastq/bowtie2Align/mergeMarkDupBam/genes.gtf'
 
 def runJob(comm, taskName, flagFile):
     '''An internal function used by the rest of the functions to spawn a process in the shell, capture the standard output 
@@ -37,6 +37,13 @@ def trimmomatic(read1, outFiles):
     #--------------------------------------------------------------------------------------
     runJob(comm, 'trimReads', flagFile)
 
+def fastqc(read, outFiles):
+    'A stub for use in complete pipeline. Not functional yet'
+    read2 = re.sub('R1','R2', read1)
+    #split the output and touchFile
+    output, flagFile = outFiles
+    comm = 'Insert Fastqc command here'
+    runJob(comm, 'fastQC', flagFile)
 
 def unzip(input1, outFiles):
     input2 = re.sub('R1','R2', input1)
@@ -46,7 +53,24 @@ def unzip(input1, outFiles):
     subprocess.check_output(comm, stderr=subprocess.STDOUT, shell=True) 
     #touch file indicates success. It should be have the completion time if there was success 
     runJob(comm, 'unzip', flagFile)
-    
+ 
+def concatenateFastq(read1, outFiles):
+    "Put the fastq files together. Remove the newline between files using grep. "
+    output, flagFile = outFiles
+    read1a = re.sub('_001.','_002.', read1)
+    read1b = re.sub('_L001.','_L002.', read1)
+    read1c = re.sub('_001.','_002.', read1b)
+    read2 = re.sub('_R1_','_R2_', read1)
+    read2a = re.sub('_001.','_002.', read2)
+    read2b = re.sub('_L001.','_L002.', read2)
+    read2c = re.sub('_001.','_002.', read2b)
+    #------------------------------build shell command--------------------------------------
+    headParams =  'cat ' + read1 + ' ' + read1a + ' ' + read1b + ' ' + read1c + ' '
+    midParams = read2 + ' ' + read2a + ' ' + read2b + ' ' + read2c + ' | ' 
+    tailParams = 'grep -v ^\$  > ' + output
+    comm = headParams + midParams + tailParams
+    #--------------------------------------------------------------------------------------- 
+    runJob(comm, 'concatenateFastq', flagFile)
 
 def bowtie2(read1, outFiles):
     read2 = re.sub('R1','R2', read1)
@@ -60,6 +84,24 @@ def bowtie2(read1, outFiles):
     comm = headParams + midParams + tailParams
     #---------------------------------------------------------------------------------------  
     runJob(comm, 'bowtie2', flagFile)
+
+
+def alignTopHat(read1, outFiles):
+    """Alignment is able to be split over many cores, Merri has 8 cores per node. 
+    As the library had mean size of 270bp set mate inner distance to 70.
+    Use a gene model annotations -G and reuse this annotation index file by storing it in a directory.
+    This step should be done where the bpipe config file is configured for the smpt queue.""" 
+    read2 = re.sub('_R1_','_R2_', read1)
+    rgID = read1[0:7]
+    output, flagFile = outFiles
+    #------------------------------build shell command--------------------------------------
+    headParams = 'tophat -p 8 -G ' + refTranscripts + ' --transcriptome-index=transcriptome_data/known'
+    juncParams = ' --read-mismatches 4 --read-gap-length 3 --max-multihits  1 --mate-inner-dist  1'
+    midParams = ' -o ' + rgID +'_out' + ' --b2-rg-id ' + rgID + ' '
+    tailParams = refGenome + ' ' + read1 + ' ' + read2
+    comm = headParams + juncParams + midParams + tailParams
+    #---------------------------------------------------------------------------------------
+    runJob(comm, 'TopHat', flagFile)
 
 
 def mergeBams(bamFile, outFiles):

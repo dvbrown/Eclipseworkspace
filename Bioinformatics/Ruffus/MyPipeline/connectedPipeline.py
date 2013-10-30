@@ -182,30 +182,25 @@ if options.verbose:
 
 inputFile = options.input_file
 
-#@transform(trimInput, suffix(".fastq"), [".trim.fastq", ".trimmSuccess.txt"]) #added touch file
-#def trimReads(read1, outFiles):
-#    tasks.tritrimmomatic(read1, outFiles)
+@transform(inputFile, suffix(".fastq"), [".trim.fastq", ".trimmSuccess.txt"]) #added touch file
+def trimReads(read1, outFiles):
+    tasks.trimmomatic(read1, outFiles)(read1, outFiles)
+    
+@transform(trimReads, suffix(".fastq"), [".fastqc.tgz", ".qcSuccess.txt"])
+def sequencingQC(inputFile, outFiles):
+    'An empty stub for the flowchart. Fill in later'
+    tasks.fastqc(inputFile, outFiles)
 
-@transform(inputFile, suffix(".fastq"), [r'catFastq/\1.cat.fastq', ".cat.txt"])
-def concatenate(inputFile, outFiles):
-    'Merge the fastqs together'
-    tasks.concatenateFastq(inputFile, outFiles)
+@transform(trimReads, suffix(".fastq"), [r'bowtie2Align/\1.bowtie.bam', ".alignSuccess.txt"])
+def alignReads(trimReads, outFiles):
+    'Emit the aligned files in the bowtie2AlignDirectory. Used local mode with default settigs. Pipe output to samtools to produce a sorted bam file'
+    tasks.bowtie2(read1, outFiles)
 
-#@transform(inputFile, suffix(".fastq"), [r'bowtie2Align/\1.bowtie.bam', ".alignSuccess.txt"])
-#def align(inputFile, outFiles):
-#    'Emit the aligned files in the bowtie2AlignDirectory. Used local mode with default settigs. Pipe output to samtools to produce a sorted bam file'
-#    tasks.bowtie2(read1, outFiles)
-
-#@transform(inputFile, suffix(".fastq"), ['.tophat.bam', ".alignSuccess.txt"])
-#def align(inputFile, outFiles):
-#    'Emit the aligned files in the tophatAlignDirectory.'
-#    tasks.alignTopHat(inputFile, outFiles)
-
-#@transform(inputFile, suffix("_L001_R1_001.fastq.trim.bowtie.bam"), ['.trim.bowtie.merged.bam','mergeSuccess.txt'])
-#def mergeAlignments(inputFile, outFiles):
-#    'Take the 2 lanes and 2 parts per lane data and merge them together into a single bam file'
-#    tasks.mergeBams(inputFile, outFiles)
-#
+@transform(alignReads, suffix("_L001_R1_001.fastq.trim.bowtie.bam"), ['.trim.bowtie.merged.bam','mergeSuccess.txt'])
+def mergeAlignments(inputFile, outFiles):
+    'Take the 2 lanes and 2 parts per lane data and merge them together into a single bam file'
+    tasks.mergeBams(inputFile, outFiles)
+##
 #@transform(mergeAlignments, suffix(".bam"), ['.sortS.bam', ".sortSuccess.txt"])
 #def sortSamtool(inputFile, outFiles):
 #    'Sort the bam file by samtools, using the bowtie reference for markduplicates'
@@ -216,22 +211,22 @@ def concatenate(inputFile, outFiles):
 #    'Index the sorted bam file for use by mark duplicates'
 #    tasks.indexSamtools(inputFile[0], touchFile)
 #
-#@follows(indexSamSort)
-#@transform(sortSamtool, suffix(".bam"), ['.sortP.bam', ".sortPSuccess.txt"])
-#def sortBamCoordinate(inputFile, outFiles):
-#    'Sort the bam file by coordinate, using the bowtie reference for markduplicates \n'
-#    tasks.reorderSam(inputFile[0], outFiles)
+
+@transform(mergeAlignments, suffix(".bam"), ['.sortP.bam', ".sortPSuccess.txt"])
+def sortAlignment(inputFile, outFiles):
+    'Sort the bam file by coordinate, using the bowtie reference for markduplicates \n'
+    tasks.reorderSam(inputFile[0], outFiles)
 #     
-#@transform(sortBamCoordinate, suffix(".bam"), ['.dedup.bam', ".deDupSuccess.txt"])
-#def deDuplicate(inputFile, outFiles):
-#    'Mark PCR duplicates, they are not removed'
-#    tasks.markDuplicates(inputFile[0], outFiles)
+@transform(sortAlignment, suffix(".bam"), ['.dedup.bam', ".deDupSuccess.txt"])
+def markDuplicateAlignments(inputFile, outFiles):
+    'Mark PCR duplicates, they are not removed'
+    tasks.markDuplicates(inputFile[0], outFiles)
 #
-#@transform(deDuplicate, suffix(".dedup.bam"), ['.rnaSeqc', ".alignQcSucess.txt"])
-#def alignmentQC(inputFile, outFiles):
-#    'Check alignments before proceeding with downstream analysis with RNAseQC'
-#    tasks.rnaSeQC(inputFile[0], outFiles)
-#
+@transform(markDuplicateAlignments, suffix(".dedup.bam"), ['.rnaSeqc', ".alignQcSucess.txt"])
+def alignmentQC(inputFile, outFiles):
+    'Check alignments before proceeding with downstream analysis with RNAseQC'
+    tasks.rnaSeQC(inputFile[0], outFiles)
+
 #@transform(inputFile, suffix(".dedup.bam"), [".getDup.bam",".getupSuccess.txt"])
 #def extractPCRduplicates(inputFile, outFiles):
 #    'Get the PCR duplicates to figure out if they are random or highly expressed genes'
@@ -251,15 +246,15 @@ def concatenate(inputFile, outFiles):
 #def indexRmDup(inputFile, touchFile):
 #    tasks.indexSamtools(inputFile[0], touchFile)
 
-#@transform(inputFile, suffix(".bam"), [".sortName.bam", "sortNsucess.txt"])
-#def sortReadName(inputFile, outFiles):
-#    'sort the bam file by read name for use by HTSeq'
-#    postAlign.sortName(inputFile, outFiles)
-#
-#@transform(sortReadName, suffix(".bam"), [".noStrHTgem.txt", ".noStrand.txt"])
-#def countFeatures(inputFile, outFiles):
-#    'Use HTSeq with the intersection-nonempty mode.'
-#    postAlign.htSeq(inputFile[0], outFiles)
+@transform(markDuplicateAlignments, suffix(".bam"), [".sortName.bam", "sortNsucess.txt"])
+def sortReadName(inputFile, outFiles):
+    'sort the bam file by read name for use by HTSeq'
+    postAlign.sortName(inputFile, outFiles)
+
+@transform(sortReadName, suffix(".bam"), [".noStrHTgem.txt", ".noStrand.txt"])
+def countFeatures(inputFile, outFiles):
+    'Use HTSeq with the intersection-nonempty mode.'
+    postAlign.htSeq(inputFile[0], outFiles)
     
 #@follows(countFeatures)
 #@transform(inputFile, suffix("bam"), [".bed", "makeBEDSucess.txt"])
