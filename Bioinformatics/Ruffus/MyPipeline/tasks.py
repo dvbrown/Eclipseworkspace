@@ -57,20 +57,23 @@ def unzip(input1, outFiles):
 def concatenateFastq(read1, outFiles):
     "Put the fastq files together. Remove the newline between files using grep. "
     output, flagFile = outFiles
+    output2 = re.sub('R1','R2', output)
     read1a = re.sub('_001.','_002.', read1)
-    read1b = re.sub('_L001.','_L002.', read1)
+    read1b = re.sub('_L001_','_L002_', read1)
     read1c = re.sub('_001.','_002.', read1b)
     read2 = re.sub('_R1_','_R2_', read1)
     read2a = re.sub('_001.','_002.', read2)
-    read2b = re.sub('_L001.','_L002.', read2)
+    read2b = re.sub('_L001_','_L002_', read2)
     read2c = re.sub('_001.','_002.', read2b)
     #------------------------------build shell command--------------------------------------
-    headParams =  'cat ' + read1 + ' ' + read1a + ' ' + read1b + ' ' + read1c + ' '
-    midParams = read2 + ' ' + read2a + ' ' + read2b + ' ' + read2c + ' | ' 
-    tailParams = 'grep -v ^\$  > ' + output
-    comm = headParams + midParams + tailParams
+    read1Params =  'cat ' + read1 + ' ' + read1a + ' ' + read1b + ' ' + read1c + ' | '
+    read2Params = 'cat ' + read2 + ' ' + read2a + ' ' + read2b + ' ' + read2c + ' | ' 
+    tailParams = 'grep -v ^\$  > '
+    commRead1 = read1Params + tailParams + output
+    commRead2 = read2Params + tailParams + output2
     #--------------------------------------------------------------------------------------- 
-    runJob(comm, 'concatenateFastq', flagFile)
+    runJob(commRead1, 'concatenateFastq', flagFile)
+    runJob(commRead2, 'concatenateFastq', flagFile)
 
 def bowtie2(read1, outFiles):
     read2 = re.sub('R1','R2', read1)
@@ -96,8 +99,8 @@ def alignTopHat(read1, outFiles):
     output, flagFile = outFiles
     #------------------------------build shell command--------------------------------------
     headParams = 'tophat -p 8 -G ' + refTranscripts + ' --transcriptome-index=transcriptome_data/known'
-    juncParams = ' --read-mismatches 4 --read-gap-length 3 --max-multihits  1 --mate-inner-dist  1'
-    midParams = ' -o ' + rgID +'_out' + ' --b2-rg-id ' + rgID + ' '
+    juncParams = ' --read-mismatches 4 --read-gap-length 4 --max-multihits  1 --mate-inner-dist  1'
+    midParams = ' --read-edit-dist 4 -o ' + rgID +'_out '
     tailParams = refGenome + ' ' + read1 + ' ' + read2
     comm = headParams + juncParams + midParams + tailParams
     #---------------------------------------------------------------------------------------

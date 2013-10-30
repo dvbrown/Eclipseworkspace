@@ -192,8 +192,7 @@ def concatenate(inputFile, outFiles):
     tasks.concatenateFastq(inputFile, outFiles)
 
 #@transform(inputFile, suffix(".fastq"), [r'bowtie2Align/\1.bowtie.bam', ".alignSuccess.txt"])
-#def align(inputFile, outFiles):
-#    'Emit the aligned files in the bowtie2AlignDirectory. Used local mode with default settigs. Pipe output to samtools to produce a sorted bam file'
+#def align(inputFile, outFiles)bowtie2AlignDirectory. Used local mode with default settigs. Pipe output to samtools to produce a sorted bam file'
 #    tasks.bowtie2(read1, outFiles)
 
 #@transform(inputFile, suffix(".fastq"), ['.tophat.bam', ".alignSuccess.txt"])
