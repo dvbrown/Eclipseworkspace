@@ -63,3 +63,22 @@ def interSectBED(bedFile, outFiles):
     comm = 'pairToBed -c -a ' + bedFile + ' -b ' + rRnaBedFile + ' > ' + output
     #---------------------------------------------------------------------------------------  
     runJob(comm, 'interSectBED', flagFile)
+    
+    
+def defuse(read1, outFiles):
+    '''Note that running deFuse again causes the program to continue where it left off
+    You need to delete all the files in the output directory to make it completly restart. The annotate fusions subscript 
+    crashes because the genome reference is given as the basebase in the config file (genome). I had to change this after 
+    annotation crashed to (genome.fa). None of the R packages had the ada package. I had to install it in my home folder
+    and create a R environmental variable echo 'R_LIBS_USER=~/R/x86_64-unknown-linux-gnu-library/2.15' >  $HOME/.Renviron
+    '''
+    read2 = re.sub('_R1_','_R2_', read1)
+    output, flagFile = outFiles
+    rgID = output[0:7]
+    #------------------------------build shell command--------------------------------------
+    headParams = '/usr/local/defuse/0.6.1/scripts/defuse.pl -c config.txt --1fastq '
+    midParams = read1 + ' --2fastq ' + read2 + ' -o /vlsci/VR0238/shared/rawData/rawFastq/deFuse/'
+    tailParams = + rgID + '_output -p 1'
+    comm = headParams + midParams + tailParams
+    #---------------------------------------------------------------------------------------  
+    runJob(comm, 'defuse', flagFile)

@@ -186,10 +186,15 @@ inputFile = options.input_file
 #def trimReads(read1, outFiles):
 #    tasks.tritrimmomatic(read1, outFiles)
 
-@transform(inputFile, suffix(".fastq"), [r'catFastq/\1.cat.fastq', ".cat.txt"])
-def concatenate(inputFile, outFiles):
-    'Merge the fastqs together'
-    tasks.concatenateFastq(inputFile, outFiles)
+#@transform(inputFile, suffix(".fastq"), [r'catFastq/\1.cat.fastq', ".cat.txt"])
+#def concatenate(inputFile, outFiles):
+#    'Merge the fastqs together'
+#    tasks.concatenateFastq(inputFile, outFiles)
+
+@transform(inputFile, suffix(".fastq"), ['.defuse', ".defSucess.txt"])
+def findFusions(inputFile, outFiles):
+    'Discover fusion genes from RNA sequencing reads'
+    postAlign.defuse(inputFile, outFiles)
 
 #@transform(inputFile, suffix(".fastq"), [r'bowtie2Align/\1.bowtie.bam', ".alignSuccess.txt"])
 #def align(inputFile, outFiles)bowtie2AlignDirectory. Used local mode with default settigs. Pipe output to samtools to produce a sorted bam file'
