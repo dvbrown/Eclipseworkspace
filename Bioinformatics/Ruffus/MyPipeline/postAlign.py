@@ -47,9 +47,9 @@ def dexSeqCount(bamFile, outFiles):
     Input for DEXseq package in R.'''
     output, flagFile = outFiles
     #------------------------------build shell command--------------------------------------
-    headParams = 'python ' + countScript 
-    midParams = ' -s no exonAnnotation.gtf '
-    tailParams = bamFile + ' ' + output
+    headParams = 'samtools sort -m 5000000000 -no ' + bamFile + ' - | '
+    midParams =  'samtools view -h - | '
+    tailParams = 'python ' + countScript + ' -s no exonAnnotation.gtf ' + ' - ' + output
     comm = headParams + midParams + tailParams
     #---------------------------------------------------------------------------------------
     runJob(comm, 'contExons', flagFile)

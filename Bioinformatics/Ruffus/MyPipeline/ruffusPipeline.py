@@ -215,10 +215,10 @@ inputFile = options.input_file
 #    'Sort the bam file by samtools, using the bowtie reference for markduplicates'
 #    tasks.sortSamtools(inputFile[0], outFiles)
 #
-#@transform(sortSamtool, suffix(""), '.indexSucess.txt')
-#def indexSamSort(inputFile, touchFile):
-#    'Index the sorted bam file for use by mark duplicates'
-#    tasks.indexSamtools(inputFile[0], touchFile)
+@transform(inputFile, suffix(""), '.indexSucess.txt')
+def indexSamSort(inputFile, touchFile):
+    'Index the sorted bam file for use by mark duplicates'
+    tasks.indexSamtools(inputFile, touchFile)
 #
 #@follows(indexSamSort)
 #@transform(sortSamtool, suffix(".bam"), ['.sortP.bam', ".sortPSuccess.txt"])
@@ -265,6 +265,7 @@ inputFile = options.input_file
 #    'Use HTSeq with the intersection-nonempty mode.'
 #    postAlign.htSeq(inputFile[0], outFiles)
 
+@follows(indexSamSort)
 @transform(inputFile, suffix(".bam"), [".countExons.txt", ".dexSuccess.txt"])
 def countExons(inputFile, outFiles):
     'Use countExons from DEXseq non-stranded. Use annotation file from pilot'
