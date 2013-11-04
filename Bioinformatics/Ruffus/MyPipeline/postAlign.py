@@ -1,8 +1,9 @@
-#refTranscripts = '/vlsci/VR0238/shared/DanB_batch1/trimFastq/bowtie2Align/mergeMarkDupBam/ensGene.gtf' TOO MANY UNCOUNTED FEATURES
 refTranscripts = '/vlsci/VR0238/shared/DanB_batch1/trimFastq/bowtie2Align/mergeMarkDupBam/genes.gtf'
 rRnaBedFile = '/vlsci/VR0238/shared/DanB_batch1/trimFastq/bowtie2Align/mergeMarkDupBam/hg19_rRNA.bed'
+countScript = "/vlsci/VR0238/dvbrown/dexseq_count.py"
 
 from tasks import runJob
+import re
 
 def removeDuplicates(bamFile, outFiles):
     'Use the flag 0x400 to remove the duplicated reads'
@@ -38,6 +39,20 @@ def htSeq(bamFile, outFiles):
     comm = headParams + midParams + tailParams
     #---------------------------------------------------------------------------------------  
     runJob(comm, 'htSeq', flagFile)
+    
+    
+def dexSeqCount(bamFile, outFiles):
+    '''Use the exon based gtf file from the previous step
+    The -s option is required to use the unstranded option for the reference. Otherwise there is an error. 
+    Input for DEXseq package in R.'''
+    output, flagFile = outFiles
+    #------------------------------build shell command--------------------------------------
+    headParams = 'python ' + countScript 
+    midParams = ' -s no exonAnnotation.gtf '
+    tailParams = bamFile + ' ' + output
+    comm = headParams + midParams + tailParams
+    #---------------------------------------------------------------------------------------
+    runJob(comm, 'contExons', flagFile)
 
 def featureCounts(bamFile, outFiles):
     output, flagFile = outFiles
@@ -76,9 +91,9 @@ def defuse(read1, outFiles):
     output, flagFile = outFiles
     rgID = output[0:7]
     #------------------------------build shell command--------------------------------------
-    headParams = '/usr/local/defuse/0.6.1/scripts/defuse.pl -c config.txt --1fastq '
-    midParams = read1 + ' --2fastq ' + read2 + ' -o /vlsci/VR0238/shared/rawData/rawFastq/deFuse/'
-    tailParams = + rgID + '_output -p 1'
+    headParams = '/usr/local/defuse/0.6.1-gcc/scripts/defuse.pl -c config.txt --1fastq '
+    midParams = read1 + ' --2fastq ' + read2 + ' -o /vlsci/VR0238/shared/DanB_batch1/trimFastq/catFastq/'
+    tailParams = rgID + '_out -p 8'
     comm = headParams + midParams + tailParams
     #---------------------------------------------------------------------------------------  
     runJob(comm, 'defuse', flagFile)

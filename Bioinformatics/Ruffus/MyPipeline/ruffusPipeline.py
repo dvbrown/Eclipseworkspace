@@ -191,10 +191,10 @@ inputFile = options.input_file
 #    'Merge the fastqs together'
 #    tasks.concatenateFastq(inputFile, outFiles)
 
-@transform(inputFile, suffix(".fastq"), ['.defuse', ".defSucess.txt"])
-def findFusions(inputFile, outFiles):
-    'Discover fusion genes from RNA sequencing reads'
-    postAlign.defuse(inputFile, outFiles)
+#@transform(inputFile, suffix(".fastq"), ['.defuse', ".defSucess.txt"])
+#def findFusions(inputFile, outFiles):
+#    'Discover fusion genes from RNA sequencing reads'
+#    postAlign.defuse(inputFile, outFiles)
 
 #@transform(inputFile, suffix(".fastq"), [r'bowtie2Align/\1.bowtie.bam', ".alignSuccess.txt"])
 #def align(inputFile, outFiles)bowtie2AlignDirectory. Used local mode with default settigs. Pipe output to samtools to produce a sorted bam file'
@@ -264,6 +264,11 @@ def findFusions(inputFile, outFiles):
 #def countFeatures(inputFile, outFiles):
 #    'Use HTSeq with the intersection-nonempty mode.'
 #    postAlign.htSeq(inputFile[0], outFiles)
+
+@transform(inputFile, suffix(".bam"), [".countExons.txt", ".dexSuccess.txt"])
+def countExons(inputFile, outFiles):
+    'Use HTSeq with the intersection-nonempty mode.'
+    postAlign.dexSeqCount(inputFile, outFiles)
     
 #@follows(countFeatures)
 #@transform(inputFile, suffix("bam"), [".bed", "makeBEDSucess.txt"])
