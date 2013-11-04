@@ -267,7 +267,7 @@ inputFile = options.input_file
 
 @transform(inputFile, suffix(".bam"), [".countExons.txt", ".dexSuccess.txt"])
 def countExons(inputFile, outFiles):
-    'Use HTSeq with the intersection-nonempty mode.'
+    'Use countExons from DEXseq non-stranded. Use annotation file from pilot'
     postAlign.dexSeqCount(inputFile, outFiles)
     
 #@follows(countFeatures)
