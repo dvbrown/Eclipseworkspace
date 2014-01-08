@@ -15,14 +15,23 @@ def readFile(filenameString):
     for row in inputA:
         data.append(row)
     return data
+        
+def fixGeneExpressionMatrix(gemDataL3):
+    '''Takes a raw level 3 gene expression matrix from firehose and returns something useful for analysis in R
+    Takes out line 2 and removes many extraneous codes in the patient name'''
+    rawGem = readFile(gemDataL3)
+    sampleNames = rawGem[0]
+    # Remove line 2
+    gem = rawGem[2:]
+    # Shorten patient ID
+    newNames = []
+    for name in sampleNames:
+        newName = name[0:12]
+        newNames.append(newName)
 
+    print '\t'.join(newNames)
+    for line in gem:
+        print '\t'.join(line)
 
-agilent = readFile(sys.argv[1])
-sampleNames = agilent[0]
-gem = agilent[2:]
-
-newNames = []
-for name in sampleNames:
-    newName = name[0:12]
-    newNames.append(newName)
-print newNames
+# This can be either Agilent or Affymetrix data        
+level3DataToFix = fixGeneExpressionMatrix(sys.argv[1])
