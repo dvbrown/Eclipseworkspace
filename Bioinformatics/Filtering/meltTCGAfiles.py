@@ -5,8 +5,8 @@
 # Gene expression file 1 = Agilent. File 2 = Affymetrix
 
 # Remember there is a version 1 and version 2. They are actually identical
-# gdac.broadinstitute.org_GBM.Merge_Clinical.Level_1.2013121000.0.0/GBM.clin.merged.txt
-# gdac.broadinstitute.org_GBM.Merge_Clinical.Level_1.2013121000.0.0 2/GBM.clin.merged.txt
+# gdac.broadinstitute.org_GBM.Merge_Clinical.Level_1.2013121000.0.0/GBM.merged_only_clin_data.txt
+# gdac.broadinstitute.org_GBM.Merge_Clinical.Level_1.2013121000.0.0 2/GBM.merged_only_clin_data.txt
 
 import csv, sys
 
@@ -37,7 +37,7 @@ def main():
                     'patient.histologicaltype', 'patient.race')
     
     patientNames = clinicalData['patient.bcrpatientbarcode']
-    filteredData = {k: clinicalData[k] for k in fieldnames[1:]}
+    filteredData = {k: clinicalData[k] for k in fieldnames}
     
     # Fix patient Names to agree with gene expression table
     newNames = []
