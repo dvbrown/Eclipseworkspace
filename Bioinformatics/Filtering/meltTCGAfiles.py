@@ -29,17 +29,24 @@ def readFile(filenameString):
 # Embed this in a main function when finished
 def main():     
     clinicalData = readFile(sys.argv[1])
-    fieldnames = ('patient.bcrpatientbarcode', 'patient.daystodeath', 'patient.ageatinitialpathologicdiagnosis', 
+    fieldnames = ('patient.daystodeath', 'patient.ageatinitialpathologicdiagnosis', 
                     'patient.drugs.drug-2.drugname',
                     'patient.drugs.drug-2.therapytypes.therapytype', 'patient.drugs.drug-3.regimenindication', 
                     'patient.followups.followup.daystotumorrecurrence','patient.followups.followup.karnofskyperformancescore', 
                     'patient.followups.followup.vitalstatus', 'patient.gender',
                     'patient.histologicaltype', 'patient.race')
     
-    filteredData = {k: clinicalData[k] for k in fieldnames}
+    patientNames = clinicalData['patient.bcrpatientbarcode']
+    filteredData = {k: clinicalData[k] for k in fieldnames[1:]}
     
+    # Fix patient Names to agree with gene expression table
+    newNames = []
+    for name in patientNames:
+        name = name.upper()
+        newNames.append(name)
     # Write out file to disk
-    
+    print '\t'.join(newNames)
+            
     for k, v in filteredData.items():
         print k + '\t' + '\t'.join(v)
 
