@@ -150,12 +150,11 @@ def indexSamtools(bamFile, touchFile):
 
 def addOrReplaceReadGroups(bamFile, outFiles):
     output, flagFile = outFiles
-    RGID = bamFile[0:26]
-    RGSM = bamFile[0:7]
+    RGID = bamFile[0:7]
     #------------------------------build shell command--------------------------------------
     headParams = 'java -Xmx2g -jar /usr/local/picard/1.96/lib/AddOrReplaceReadGroups.jar VALIDATION_STRINGENCY=LENIENT INPUT='
     tailParams = ' SORT_ORDER=coordinate ' + 'RGID=' + RGID + ' RGLB=RNA RGPL=ILLUMINA RGPU=H14NTADXX RGSM='
-    comm = headParams + bamFile + ' ' + 'OUTPUT=' + output + ' ' + tailParams + RGSM
+    comm = headParams + bamFile + ' ' + 'OUTPUT=' + output + ' ' + tailParams + RGID
     #---------------------------------------------------------------------------------------  
     runJob(comm, 'changeReadGroups', flagFile)
     

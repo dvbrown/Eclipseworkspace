@@ -209,33 +209,37 @@ inputFile = options.input_file
 #def mergeAlignments(inputFile, outFiles):
 #    'Take the 2 lanes and 2 parts per lane data and merge them together into a single bam file'
 #    tasks.mergeBams(inputFile, outFiles)
-#
+
 #@transform(mergeAlignments, suffix(".bam"), ['.sortS.bam', ".sortSuccess.txt"])
 #def sortSamtool(inputFile, outFiles):
 #    'Sort the bam file by samtools, using the bowtie reference for markduplicates'
 #    tasks.sortSamtools(inputFile[0], outFiles)
 #
-@transform(inputFile, suffix(""), '.indexSucess.txt')
-def indexSamSort(inputFile, touchFile):
-    'Index the sorted bam file for use by mark duplicates'
-    tasks.indexSamtools(inputFile, touchFile)
+#@transform(inputFile, suffix(""), '.indexSucess.txt')
+#def indexSamSort(inputFile, touchFile):
+#    'Index the sorted bam file for use by mark duplicates'
+#    tasks.indexSamtools(inputFile, touchFile)
 #
-#@follows(indexSamSort)
-#@transform(sortSamtool, suffix(".bam"), ['.sortP.bam', ".sortPSuccess.txt"])
-#def sortBamCoordinate(inputFile, outFiles):
-#    'Sort the bam file by coordinate, using the bowtie reference for markduplicates \n'
-#    tasks.reorderSam(inputFile[0], outFiles)
-#     
-#@transform(sortBamCoordinate, suffix(".bam"), ['.dedup.bam', ".deDupSuccess.txt"])
-#def deDuplicate(inputFile, outFiles):
-#    'Mark PCR duplicates, they are not removed'
-#    tasks.markDuplicates(inputFile[0], outFiles)
-#
-#@transform(deDuplicate, suffix(".dedup.bam"), ['.rnaSeqc', ".alignQcSucess.txt"])
-#def alignmentQC(inputFile, outFiles):
-#    'Check alignments before proceeding with downstream analysis with RNAseQC'
-#    tasks.rnaSeQC(inputFile[0], outFiles)
-#
+@transform(inputFile, suffix(".bam"), ['.RG.bam', ".rgSuccess.txt"])
+def addReadGroup(inputFile, outFiles):
+    'Add a read group ID so GATK likes it'
+    tasks.addOrReplaceReadGroups(inputFile, outFiles)
+
+@transform(addReadGroup, suffix(".bam"), ['.sortP.bam', ".sortPSuccess.txt"])
+def sortBamCoordinate(inputFile, outFiles):
+    'Sort the bam file by coordinate, using the bowtie reference for markduplicates \n'
+    tasks.reorderSam(inputFile[0], outFiles)
+     
+@transform(sortBamCoordinate, suffix(".bam"), ['.dedup.bam', ".deDupSuccess.txt"])
+def deDuplicate(inputFile, outFiles):
+    'Mark PCR duplicates, they are not removed'
+    tasks.markDuplicates(inputFile[0], outFiles)
+
+@transform(deDuplicate, suffix(".dedup.bam"), ['.rnaSeqc', ".alignQcSucess.txt"])
+def alignmentQC(inputFile, outFiles):
+    'Check alignments before proceeding with downstream analysis with RNAseQC'
+    tasks.rnaSeQC(inputFile[0], outFiles)
+
 #@transform(inputFile, suffix(".dedup.bam"), [".getDup.bam",".getupSuccess.txt"])
 #def extractPCRduplicates(inputFile, outFiles):
 #    'Get the PCR duplicates to figure out if they are random or highly expressed genes'
@@ -265,11 +269,11 @@ def indexSamSort(inputFile, touchFile):
 #    'Use HTSeq with the intersection-nonempty mode.'
 #    postAlign.htSeq(inputFile[0], outFiles)
 
-@follows(indexSamSort)
-@transform(inputFile, suffix(".bam"), [".countExons.txt", ".dexSuccess.txt"])
-def countExons(inputFile, outFiles):
-    'Use countExons from DEXseq non-stranded. Use annotation file from pilot'
-    postAlign.dexSeqCount(inputFile, outFiles)
+#@follows(indexSamSort)
+#@transform(inputFile, suffix(".bam"), [".countExons.txt", ".dexSuccess.txt"])
+#def countExons(inputFile, outFiles):
+#    'Use countExons from DEXseq non-stranded. Use annotation file from pilot'
+#    postAlign.dexSeqCount(inputFile, outFiles)
     
 #@follows(countFeatures)
 #@transform(inputFile, suffix("bam"), [".bed", "makeBEDSucess.txt"])
