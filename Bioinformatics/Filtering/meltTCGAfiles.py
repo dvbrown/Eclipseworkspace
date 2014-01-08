@@ -4,7 +4,7 @@
 # This script will take a clinical report file and 2 gene expression files
 # Gene expression file 1 = Agilent. File 2 = Affymetrix
 
-# Remember there is a version 1 and version 2
+# Remember there is a version 1 and version 2. They are actually identical
 # gdac.broadinstitute.org_GBM.Merge_Clinical.Level_1.2013121000.0.0/GBM.clin.merged.txt
 # gdac.broadinstitute.org_GBM.Merge_Clinical.Level_1.2013121000.0.0 2/GBM.clin.merged.txt
 
@@ -26,15 +26,23 @@ def readFile(filenameString):
         result[key] = values
     return result
 
-
 # Embed this in a main function when finished
-     
-clinicalData = readFile(sys.argv[1])
-usefulFields = ('patient.bcrpatientbarcode', 'patient.daystodeath', 'patient.ageatinitialpathologicdiagnosis', 
-                'patient.drugs.drug-2.drugname',
-                'patient.drugs.drug-2.therapytypes.therapytype', 'patient.drugs.drug-3.regimenindication', 
-                'patient.followups.followup.daystotumorrecurrence','patient.followups.followup.karnofskyperformancescore', 
-                'patient.followups.followup.vitalstatus', 'patient.gender',
-                'patient.histologicaltype', 'patient.race')
+def main():     
+    clinicalData = readFile(sys.argv[1])
+    fieldnames = ('patient.bcrpatientbarcode', 'patient.daystodeath', 'patient.ageatinitialpathologicdiagnosis', 
+                    'patient.drugs.drug-2.drugname',
+                    'patient.drugs.drug-2.therapytypes.therapytype', 'patient.drugs.drug-3.regimenindication', 
+                    'patient.followups.followup.daystotumorrecurrence','patient.followups.followup.karnofskyperformancescore', 
+                    'patient.followups.followup.vitalstatus', 'patient.gender',
+                    'patient.histologicaltype', 'patient.race')
+    
+    filteredData = {k: clinicalData[k] for k in fieldnames}
+    
+    # Write out file to disk
+    
+    for k, v in filteredData.items():
+        print k + '\t' + '\t'.join(v)
 
-filteredData = {k: clinicalData[k] for k in usefulFields}
+if __name__ == '__main__':
+    main()
+
