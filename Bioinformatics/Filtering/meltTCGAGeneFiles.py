@@ -14,6 +14,7 @@ def readFile(filenameString):
     data = []
     for row in inputA:
         data.append(row)
+    fileA.close()
     return data
         
 def fixGeneExpressionMatrix(gemDataL3):
