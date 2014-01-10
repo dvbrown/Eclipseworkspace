@@ -13,6 +13,7 @@ def readAfile(filenameString):
     return data
 
 def writeAfile(fileName, data2Bwritten):
+    'Open a file and write rows in tab delimited format'
     w = open(fileName, 'w')        
     writer = csv.writer(w ,delimiter="\t")
     for row in data2Bwritten:
@@ -24,8 +25,9 @@ def fixVariables(inputFile, find, replace):
     'Read in a list of lists and if there is a match with find the replace it with replace!'
     result = []
     for entry in inputFile:
-        [replace if i==find else i for i in entry]
-        result.append(entry)
+        # Make a list comprehension and store it as a variable
+        findReplace = [replace if word==find else word for word in entry]
+        result.append(findReplace)
     return result
 
 def main():
