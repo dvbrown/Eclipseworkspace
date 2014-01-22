@@ -183,21 +183,21 @@ if options.verbose:
 inputFile = options.input_file
 
 @transform(inputFile, suffix(".fastq"), [".trim.fastq", ".trimmSuccess.txt"]) #added touch file
-def trimReads(read1, outFiles):
+def trimmomatic(read1, outFiles):
     tasks.trimmomatic(read1, outFiles)(read1, outFiles)
     
-@transform(trimReads, suffix(".fastq"), [".fastqc.tgz", ".qcSuccess.txt"])
-def sequencingQC(inputFile, outFiles):
+@transform(trimmomatic, suffix(".fastq"), [".fastqc.tgz", ".qcSuccess.txt"])
+def fastQC(inputFile, outFiles):
     'An empty stub for the flowchart. Fill in later'
     tasks.fastqc(inputFile, outFiles)
 
-@transform(trimReads, suffix(".fastq"), [r'bowtie2Align/\1.bowtie.bam', ".alignSuccess.txt"])
-def alignReads(trimReads, outFiles):
+@transform(trimmomatic, suffix(".fastq"), [r'bowtie2Align/\1.bowtie.bam', ".alignSuccess.txt"])
+def bowtie2(trimReads, outFiles):
     'Emit the aligned files in the bowtie2AlignDirectory. Used local mode with default settigs. Pipe output to samtools to produce a sorted bam file'
     tasks.bowtie2(read1, outFiles)
 
-@transform(alignReads, suffix("_L001_R1_001.fastq.trim.bowtie.bam"), ['.trim.bowtie.merged.bam','mergeSuccess.txt'])
-def mergeAlignments(inputFile, outFiles):
+@transform(bowtie2, suffix("_L001_R1_001.fastq.trim.bowtie.bam"), ['.trim.bowtie.merged.bam','mergeSuccess.txt'])
+def picardMerge(inputFile, outFiles):
     'Take the 2 lanes and 2 parts per lane data and merge them together into a single bam file'
     tasks.mergeBams(inputFile, outFiles)
 ##
@@ -212,47 +212,28 @@ def mergeAlignments(inputFile, outFiles):
 #    tasks.indexSamtools(inputFile[0], touchFile)
 #
 
-@transform(mergeAlignments, suffix(".bam"), ['.sortP.bam', ".sortPSuccess.txt"])
-def sortAlignment(inputFile, outFiles):
+@transform(picardMerge, suffix(".bam"), ['.sortP.bam', ".sortPSuccess.txt"])
+def picardReorder(inputFile, outFiles):
     'Sort the bam file by coordinate, using the bowtie reference for markduplicates \n'
     tasks.reorderSam(inputFile[0], outFiles)
 #     
-@transform(sortAlignment, suffix(".bam"), ['.dedup.bam', ".deDupSuccess.txt"])
-def markDuplicateAlignments(inputFile, outFiles):
+@transform(picardReorder, suffix(".bam"), ['.dedup.bam', ".deDupSuccess.txt"])
+def PicardMarkDuplicate(inputFile, outFiles):
     'Mark PCR duplicates, they are not removed'
     tasks.markDuplicates(inputFile[0], outFiles)
 #
-@transform(markDuplicateAlignments, suffix(".dedup.bam"), ['.rnaSeqc', ".alignQcSucess.txt"])
-def alignmentQC(inputFile, outFiles):
+@transform(PicardMarkDuplicate, suffix(".dedup.bam"), ['.rnaSeqc', ".alignQcSucess.txt"])
+def RNAseQC(inputFile, outFiles):
     'Check alignments before proceeding with downstream analysis with RNAseQC'
     tasks.rnaSeQC(inputFile[0], outFiles)
 
-#@transform(inputFile, suffix(".dedup.bam"), [".getDup.bam",".getupSuccess.txt"])
-#def extractPCRduplicates(inputFile, outFiles):
-#    'Get the PCR duplicates to figure out if they are random or highly expressed genes'
-#    postAlign.extractDuplicates(inputFile, outFiles)
-# 
-#@transform(extractPCRduplicates, suffix(""), '.indexSucess.txt')
-#def indexExtractDup(inputFile, touchFile):
-#    tasks.indexSamtools(inputFile[0], touchFile)
-#    
-#@follows(indexExtractDup)
-#@transform(inputFile, suffix(".dedup.bam"), [".rmDup.bam",".rmDupSuccess.txt"])
-#def removePCRduplicates(inputFile, outFiles):
-#    'Filter out the PCR duplicates'
-#    postAlign.removeDuplicates(inputFile, outFiles)
-#
-#@transform(removePCRduplicates, suffix(""), '.indexSucess.txt')
-#def indexRmDup(inputFile, touchFile):
-#    tasks.indexSamtools(inputFile[0], touchFile)
-
-@transform(markDuplicateAlignments, suffix(".bam"), [".sortName.bam", "sortNsucess.txt"])
-def sortReadName(inputFile, outFiles):
+@transform(PicardMarkDuplicate, suffix(".bam"), [".sortName.bam", "sortNsucess.txt"])
+def samtoolsSortReadName(inputFile, outFiles):
     'sort the bam file by read name for use by HTSeq'
     postAlign.sortName(inputFile, outFiles)
 
-@transform(sortReadName, suffix(".bam"), [".noStrHTgem.txt", ".noStrand.txt"])
-def countFeatures(inputFile, outFiles):
+@transform(samtoolsSortReadName, suffix(".bam"), [".noStrHTgem.txt", ".noStrand.txt"])
+def HTSeqCountFeatures(inputFile, outFiles):
     'Use HTSeq with the intersection-nonempty mode.'
     postAlign.htSeq(inputFile[0], outFiles)
     

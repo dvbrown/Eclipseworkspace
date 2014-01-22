@@ -1,12 +1,13 @@
 import argparse, csv
 
-def arparserStub():
-    parser = argparse.ArgumentParser(description="Reads an input file and changes whatever matches the second argument to NA for use in R")
-    parser.add_argument('-i', '--inputData', required=True, help='The file containing elements you want to change')
-    parser.add_argument('-v', '--valueToChange', required=True, help='The value you want to change. For example null or 0')
-    parser.add_argument('-r', '--valueToReplace', required=True, help='The value you want to replace it with. For example NA')
-    parser.add_argument('-o', '--outputData', required=False, help='The file you get at the end')
-    args = parser.parse_args()
+#parser = argparse.ArgumentParser(description="Reads an input file and changes whatever matches the second argument to NA for use in R")
+#parser.add_argument('-i', '--inputData', required=True, help='The file containing elements you want to change')
+#parser.add_argument('-v', '--valueToChange', required=True, help='The value you want to change. For example null or 0')
+#parser.add_argument('-r', '--valueToReplace', required=True, help='The value you want to replace it with. For example NA')
+#parser.add_argument('-o', '--outputData', required=False, help='The file you get at the end')
+#args = parser.parse_args()
+
+# Usage == args.inputData
 
 
 def readAfile(filenameString):
