@@ -3,7 +3,6 @@
 
 import argparse, string, itertools, csv
 import aUsefulFunctionsFiltering
-from locale import str
 
 def main():
     parser = argparse.ArgumentParser(description="""Reads an input file that is a linear representation of a 96 well plate and extracts the
@@ -17,39 +16,44 @@ def main():
     # Input data
     data = aUsefulFunctionsFiltering.readAfile(args.inputData)
     
-    # Extract the well names for replicate 1
+    # Extract the well names for replicate 1. PUT THIS AS A command line argument in the future and collate the 2 replicates into 1
     letters1 = ['B', 'C', 'D']
     rep1 = []
     x = 1
-    while x < 12:
-        x += 1
+    while x < 13:
         y = [letter + str(x) for letter in letters1]
         rep1.append(y)
+        x += 1
     
     # Extract replicate names for replicate 2
     letters2 = ['E', 'F', 'G']
     rep2 = []
     x = 1
-    while x < 12:
-        x += 1
+    while x < 13:
+    # Using list comprehensions builds the nested list structure that is so useful. Don't use for loops
         y = [letter + str(x) for letter in letters2]
         rep2.append(y)    
+        x += 1
     
-    
-
     # Make a header
-    header = ['wells', 'rep1', 'rep2', 'rep3']
-#    print header
-    newData = {}
+    header = ['well1', 'well2', 'well3' ,'rep1', 'rep2', 'rep3']
+    print '\t'.join(header)
     
 ######################################## This is the part of the script that does some work ################################################# 
-    # Read data into dictionary for later manipulation
+    # If the data is in triplicate
     if args.replication == '3':
         for row in data:
+            # Search the well name of the data against the list of lists containing the replicate structure
             for group in rep1:
+                if row[0] in group:
+                    # Append to the replicate structure list
+                    group.append(row[1])
+            # Repeat for the second group of replicates although this is not necessary        
+            for group in rep2:
                 if row[0] in group:
                     group.append(row[1])
 ###################################################### ###################################################### 
+    # Some error messages
     elif args.replication == '2':
         print "Duplicates ain't implemented yet"
         
@@ -62,11 +66,13 @@ def main():
         writer = csv.writer(w ,delimiter="\t")
         ###################################### Fix the iteration of this
         writer.writerow(zip(wells, plateMap2))
-    ######################################
+        ##################################
     
-    
+# Print the output to file   
     for line in rep1:
         print '\t'.join(line)
-
+    for line in rep2:
+        print '\t'.join(line)
+# Good old boiler plate
 if __name__ == '__main__':
     main()
