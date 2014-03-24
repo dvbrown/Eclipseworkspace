@@ -2,7 +2,8 @@
 #A script to parse 384 well files and transpose to column vector
 
 import argparse, string, itertools, csv
-import aUsefulFunctionsFiltering 
+import aUsefulFunctionsFiltering
+from locale import str
 
 def main():
     parser = argparse.ArgumentParser(description="""Reads an input file that is a linear representation of a 96 well plate and extracts the
@@ -13,15 +14,48 @@ def main():
     parser.add_argument('-o', '--outputData', required=False, help='The file you get at the end')
     args = parser.parse_args()
     
+    # Input data
     data = aUsefulFunctionsFiltering.readAfile(args.inputData)
+    
+    # Extract the well names for replicate 1
+    letters1 = ['B', 'C', 'D']
+    rep1 = []
+    x = 1
+    while x < 12:
+        x += 1
+        y = [letter + str(x) for letter in letters1]
+        rep1.append(y)
+    
+    # Extract replicate names for replicate 2
+    letters2 = ['E', 'F', 'G']
+    rep2 = []
+    x = 1
+    while x < 12:
+        x += 1
+        y = [letter + str(x) for letter in letters2]
+        rep2.append(y)    
+    
+    
 
     # Make a header
     header = ['wells', 'rep1', 'rep2', 'rep3']
-    print header
-
-    if args.replication == 3:
-        for row in data
-
+#    print header
+    newData = {}
+    
+######################################## This is the part of the script that does some work ################################################# 
+    # Read data into dictionary for later manipulation
+    if args.replication == '3':
+        for row in data:
+            for group in rep1:
+                if row[0] in group:
+                    group.append(row[1])
+###################################################### ###################################################### 
+    elif args.replication == '2':
+        print "Duplicates ain't implemented yet"
+        
+    else:
+        print "Invalid level of replication"
+        
     # Write out to file if one is provided on command line
     if args.outputData == True:
         w = open(args.outputData, 'w')
@@ -31,8 +65,8 @@ def main():
     ######################################
     
     
-    for row in data:
-        print row
+    for line in rep1:
+        print '\t'.join(line)
 
 if __name__ == '__main__':
     main()
