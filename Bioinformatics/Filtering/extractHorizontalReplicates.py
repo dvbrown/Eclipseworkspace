@@ -24,22 +24,22 @@ def main():
     else:
         print 'This file type is not a valid invasion assay or data from a plate reader'
         
-    # Obtain in the well names
-    if args.fileType == 'invasion':
-        letters = list(string.ascii_lowercase)
-    elif args.fileType == 'fluoro':
-        letters = list(string.ascii_uppercase)
-    else:
-        print 'You have entered an invalid filetype'
-        
-    letters = letters[0:8]
-    number = range(1, 13)
-    # Paste the well letters and numbers
-    wells = []
-    for letter in letters:
-        for num in number:
-            x = letter + str(num)
-            wells.append(x)
+#    # Obtain in the well names
+#    if args.fileType == 'invasion':
+#        letters = list(string.ascii_lowercase)
+#    elif args.fileType == 'fluoro':
+#        letters = list(string.ascii_uppercase)
+#    else:
+#        print 'You have entered an invalid filetype'
+#        
+#    letters = letters[0:8]
+#    number = range(1, 13)
+#    # Paste the well letters and numbers
+#    wells = []
+#    for letter in letters:
+#        for num in number:
+#            x = letter + str(num)
+#            wells.append(x)
     
     # Make a header
     header = ['well1', 'well2', 'well3' ,'rep1', 'rep2', 'rep3']
@@ -57,6 +57,24 @@ def main():
                        ['g1','g2','g3'], ['g4','g5','g6'],['g7','g8','g9'],['g10','g11','g12'],
                        ['h1','h2','h3'], ['h4','h5','h6'],['h7','h8','h9'],['h10','h11','h12'],
                        ]
+    
+
+    
+    if args.fileType == 'fluoro':
+        replicateLookupN = []
+        for group in replicateLookup:
+            group = [string.upper(well[0]) for well in group]
+            replicateLookupN.append(group)
+
+#            for well in group:
+#                lett = well[0]
+#                num = well[1]
+#                lettN = string.upper(lett)
+#                well.replace(lett ,lettN + num)
+
+                
+                
+    print replicateLookupN
      
 ######################################## This is the part of the script that does some work ################################################# 
     # If the data is in triplicate
@@ -89,9 +107,7 @@ def main():
         writer.writerow(zip(wells, plateMap2))
         ##################################
     
-# Print the output to file
-#    if args.fileType == 'invasion':
-#        replicateLookup = replicateLookup[0:4]
+
 
     for line in replicateLookup:
         print '\t'.join(line)
