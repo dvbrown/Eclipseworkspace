@@ -1,7 +1,7 @@
 #!/usr/bin/python2.7
 #A script to parse 384 well files and transpose to column vector
 
-import argparse, string, itertools, csv
+import argparse, string, csv
 import aUsefulFunctionsFiltering
 
 def main():
@@ -27,7 +27,7 @@ def main():
     # Obtain in the well names
     if args.fileType == 'invasion':
         letters = list(string.ascii_lowercase)
-    elif rgs.fileType == 'fluoro':
+    elif args.fileType == 'fluoro':
         letters = list(string.ascii_uppercase)
     else:
         print 'You have entered an invalid filetype'
@@ -38,17 +38,26 @@ def main():
     wells = []
     for letter in letters:
         for num in number:
-            if args.fileType == 'invasion':
-                x = letter + str(num) + '.tif'
-            else:
-                x = letter + str(num)
+            x = letter + str(num)
             wells.append(x)
-        
     
     # Make a header
     header = ['well1', 'well2', 'well3' ,'rep1', 'rep2', 'rep3']
     print '\t'.join(header)
     
+    
+######################################## Build the list that will define replicates ################################################# 
+    replicateLookup = [
+                       ['a1','a2','a3'], ['a4','a5','a6'],['a7','a8','a9'],['a10','a11','a12'],
+                       ['b1','b2','b3'], ['b4','b5','b6'],['b7','b8','b9'],['b10','b11','b12'],
+                       ['c1','c2','c3'], ['c4','c5','c6'],['c7','c8','c9'],['c10','c11','c12'],
+                       ['d1','d2','d3'], ['d4','d5','d6'],['d7','d8','d9'],['d10','d11','d12'],
+                       ['e1','e2','e3'], ['e4','e5','e6'],['e7','e8','e9'],['e10','e11','e12'],
+                       ['f1','f2','f3'], ['f4','f5','f6'],['f7','f8','f9'],['f10','f11','f12'],
+                       ['g1','g2','g3'], ['g4','g5','g6'],['g7','g8','g9'],['g10','g11','g12'],
+                       ['h1','h2','h3'], ['h4','h5','h6'],['h7','h8','h9'],['h10','h11','h12'],
+                       ]
+     
 ######################################## This is the part of the script that does some work ################################################# 
     # If the data is in triplicate
     if args.replication == '3':
@@ -59,15 +68,12 @@ def main():
                 wellName = wellName[:-4]
                 
             # Search the well name of the data against the list of lists containing the replicate structure
-            for group in rep1:
+            for group in replicateLookup:
                 if wellName in group:
                     # Append to the replicate structure list
                     group.append(row[1])
-            # Repeat for the second group of replicates although one day I will combine this step    
-            for group in rep2:
-                if wellName in group:
-                    group.append(row[1])
-###################################################### ###################################################### 
+
+############################################################################################################ 
     # Some error messages
     elif args.replication == '2':
         print "Duplicates ain't implemented yet"
@@ -85,13 +91,12 @@ def main():
     
 # Print the output to file
     if args.fileType == 'invasion':
-        rep1 = rep1[0:4]
+        replicateLookup = replicateLookup[0:4]
 
-    for line in rep1:
+    for line in replicateLookup:
         print '\t'.join(line)
     if args.fileType == 'fluoro':
-        for line in rep2:
-            print '\t'.join(line)
-# Good old boiler plate
+
+
 if __name__ == '__main__':
     main()
