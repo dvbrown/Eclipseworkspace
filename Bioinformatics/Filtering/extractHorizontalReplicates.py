@@ -63,18 +63,9 @@ def main():
     if args.fileType == 'fluoro':
         replicateLookupN = []
         for group in replicateLookup:
-            group = [string.upper(well[0]) for well in group]
+            group = [string.upper(well[0]) + well[1:] for well in group]
             replicateLookupN.append(group)
 
-#            for well in group:
-#                lett = well[0]
-#                num = well[1]
-#                lettN = string.upper(lett)
-#                well.replace(lett ,lettN + num)
-
-                
-                
-    print replicateLookupN
      
 ######################################## This is the part of the script that does some work ################################################# 
     # If the data is in triplicate
@@ -86,6 +77,9 @@ def main():
                 wellName = wellName[:-4]
                 
             # Search the well name of the data against the list of lists containing the replicate structure
+            if args.fileType == 'fluoro':
+                replicateLookup = replicateLookupN
+            
             for group in replicateLookup:
                 if wellName in group:
                     # Append to the replicate structure list
