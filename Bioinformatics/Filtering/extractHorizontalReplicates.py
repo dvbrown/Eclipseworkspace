@@ -90,13 +90,11 @@ def main():
         ##################################
     
 # Print the output to file
-    if args.fileType == 'invasion':
-        replicateLookup = replicateLookup[0:4]
+#    if args.fileType == 'invasion':
+#        replicateLookup = replicateLookup[0:4]
 
     for line in replicateLookup:
         print '\t'.join(line)
-    if args.fileType == 'fluoro':
-
 
 if __name__ == '__main__':
-    main()
+    main()        
