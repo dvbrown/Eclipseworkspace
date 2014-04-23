@@ -24,29 +24,26 @@ def main():
     else:
         print 'This file type is not a valid invasion assay or data from a plate reader'
         
-    # Extract the well names for replicate 1. PUT THIS AS A command line argument in the future and collate the 2 replicates into 1
-    letters1 = ['B', 'C', 'D']
-    # Convert to lower case if the data is invasion assay
+    # Obtain in the well names
     if args.fileType == 'invasion':
-        letters1 = ['b', 'c', 'd']          
-    rep1 = []
-    x = 1
-    while x < 13:
-        y = [letter + str(x) for letter in letters1]
-        rep1.append(y)
-        x += 1
-    
-    # Extract replicate names for replicate 2
-    letters2 = ['E', 'F', 'G']
-    if args.fileType == 'invasion':
-        letters2 = ['e', 'f', 'g']
-    rep2 = []
-    x = 1
-    while x < 13:
-    # Using list comprehensions builds the nested list structure that is so useful. Don't use for loops
-        y = [letter + str(x) for letter in letters2]
-        rep2.append(y)    
-        x += 1
+        letters = list(string.ascii_lowercase)
+    elif rgs.fileType == 'fluoro':
+        letters = list(string.ascii_uppercase)
+    else:
+        print 'You have entered an invalid filetype'
+        
+    letters = letters[0:8]
+    number = range(1, 13)
+    # Paste the well letters and numbers
+    wells = []
+    for letter in letters:
+        for num in number:
+            if args.fileType == 'invasion':
+                x = letter + str(num) + '.tif'
+            else:
+                x = letter + str(num)
+            wells.append(x)
+        
     
     # Make a header
     header = ['well1', 'well2', 'well3' ,'rep1', 'rep2', 'rep3']
