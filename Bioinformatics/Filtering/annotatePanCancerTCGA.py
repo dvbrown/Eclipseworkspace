@@ -31,24 +31,31 @@ def main():
         if patient in diseaseDict.keys():
             phenotype.append(diseaseDict[patient])
     
-    # Store the unique values of the phenoypes        
-    sampleAnnotation = set(phenotype)
-    # Number of samples
-    sampleNo = len(phenotype)
-    classNo = len(sampleAnnotation)
-    
     # Change the phenotype labels to be one word
+    fixedPhenotype = []
     for case in phenotype:
         if case == 'Recurrent Tumor':
-            pass
+            case = 'Recurrent_Tumor'
         elif case == 'Primary Tumor':
-            pass
-        else case == 'Solid Tissue Normal'
+            case = 'Primary_Tumor'
+        elif case == 'Solid Tissue Normal':
+            case = 'Normal'
+        else:
+            case = 'NA'
+        fixedPhenotype.append(case)
+           
+    # Store the unique values of the phenoypes        
+    sampleAnnotation = set(fixedPhenotype)
+    
+    # Number of samples
+    sampleNo = len(phenotype)
+    classNo = len(sampleAnnotation) 
     
     # Emit output
-#    print str(sampleNo) + '\t' + str(classNo) + '\t1'
-#    print '#\t' + '\t'.join(sampleAnnotation) 
-#    print "cancer\t" + '\t'.join(phenotype)
+    print str(sampleNo) + '\t' + str(classNo) + '\t1'
+    #print '#\t' + '\t'.join(sampleAnnotation)
+    print '#\t' + '\tPrimary_Tumor\tNormal\tRecurrent_Tumor' 
+    print '\t'.join(fixedPhenotype)
     
 if __name__ == '__main__':
     main()
