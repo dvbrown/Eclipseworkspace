@@ -1,6 +1,7 @@
 #!/usr/bin/python2.7
 
 import aUsefulFunctionsFiltering, argparse
+import numpy as np
 
 def main():
     parser = argparse.ArgumentParser(description="""Reads a gene expression matrix from the TCGA and returns only the primary tumour cases""")
@@ -8,22 +9,13 @@ def main():
     parser.add_argument('-o', '--outputData', required=False, help='The file you get at the end')
     args = parser.parse_args()
     
-    gem = aUsefulFunctionsFiltering.readAfile(args.genomicData)
+    gem = np.loadtxt(args.genomicData, delimiter='\t', skiprows=2)
+    print gem
     
-    header = gem[0]
-    gem = gem[1:]
-    gemDict = {}
     
-    for entry in gem:
-        k = entry[0]
-        v = entry[1:]
-        gemDict[k] = v
-        
-    print header
-        
-
-
-if __name__ == '__main__':
-    main()        
+if __name__ == 'main':
+    main()
+    
+   
 
         
