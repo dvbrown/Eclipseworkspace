@@ -54,11 +54,10 @@ def main():
     classNo = len(sampleAnnotation) 
     
     # Emit output
-    
     print str(sampleNo) + '\t' + str(classNo) + '\t1'
     #print '#\t' + '\t'.join(sampleAnnotation)
     # The class labels need to be in order
-    print '#\t' + '\tPrimary_Tumor\tNormal'#\tRecurrent_Tumor' 
+    print '#\t' + '\tPrimary_Tumor\tNormal\tNA' 
     print '\t'.join(fixedPhenotype)
     
 if __name__ == '__main__':

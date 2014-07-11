@@ -24,22 +24,22 @@ def main():
     else:
         print 'This file type is not a valid invasion assay or data from a plate reader'
         
-#    # Obtain in the well names
-#    if args.fileType == 'invasion':
-#        letters = list(string.ascii_lowercase)
-#    elif args.fileType == 'fluoro':
-#        letters = list(string.ascii_uppercase)
-#    else:
-#        print 'You have entered an invalid filetype'
-#        
-#    letters = letters[0:8]
-#    number = range(1, 13)
-#    # Paste the well letters and numbers
-#    wells = []
-#    for letter in letters:
-#        for num in number:
-#            x = letter + str(num)
-#            wells.append(x)
+    # Obtain in the well names
+    if args.fileType == 'invasion':
+        letters = list(string.ascii_lowercase)
+    elif args.fileType == 'fluoro':
+        letters = list(string.ascii_uppercase)
+    else:
+        print 'You have entered an invalid filetype'
+        
+    letters = letters[0:8]
+    number = range(1, 13)
+    # Paste the well letters and numbers
+    wells = []
+    for letter in letters:
+        for num in number:
+            x = letter + str(num)
+            wells.append(x)
     
     # Make a header
     header = ['well1', 'well2', 'well3' ,'rep1', 'rep2', 'rep3']
