@@ -1,7 +1,6 @@
 #!/usr/bin/python2.7
 
-import aUsefulFunctionsFiltering, argparse
-import numpy as np
+import argparse
 import pandas as pd
 
 def main():
@@ -11,7 +10,10 @@ def main():
     args = parser.parse_args()
     
     gem = pd.read_csv(args.genomicData, sep='\t')
-    gem
+    # Use this syntax to extract columns
+    print gem.loc[:,['sample1', 'sample2']]
+    
+    gem.pd.to_csv(sep="\t")
     
     
 if __name__ == '__main__':
