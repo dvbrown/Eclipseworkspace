@@ -7,7 +7,8 @@ import aUsefulFunctionsFiltering
 def main():
     parser = argparse.ArgumentParser(description="""Reads an input file that is a linear representation of a 96 well plate and extracts the
     replicate level and binds them in columns""")
-    parser.add_argument('-i', '--inputData', required=True, help='''The file that is the linear data from a 96 well experiment''')
+    parser.add_argument('-i', '--inputData', required=True, help='''The file that is the linear data from a 96 well experiment.
+    This file is the output of transposeLiner96well.py''')
     parser.add_argument('-r', '--replication', required=True, help='''The level of replication of the experiment ie 2 or 3 replicates. CURRENTLY WORKS FOR TRIPLICATE''')
     parser.add_argument('-f', '--fileType', required=True, help='''Whether this is a fluoro plate reader file (no headers)
         or a invasion assay data. Options = fluoro or invasion''')
