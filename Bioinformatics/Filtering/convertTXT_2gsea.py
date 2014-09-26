@@ -9,9 +9,11 @@ def convertGEMtoGCT(data):
     '''
     # Measure the number of samples and genes
     header = data[0]
-    gctFile = data[:]
+    gctFile = data[1:]
     probeNumber = str(len(data))
     sampleNumber = str(len(header))
+    header.insert(0,"NAME")
+    header.insert(1,"Description")
     # Copy the data so that entries can be pushed
     # Insert NA into the description
     for line in gctFile:
@@ -19,6 +21,7 @@ def convertGEMtoGCT(data):
         
     gctFile[0] = '#1.2'
     gctFile[1] = probeNumber + '\t' + sampleNumber
+    gctFile.insert(2, header)
     return gctFile
 
 def convertLabelstoCLS(data):
@@ -42,13 +45,18 @@ def main():
     # The switch that calls either of the helper functions
     if args.typeOfFile == 'gem':
         result = convertGEMtoGCT(data)
+        # The tabs mess up formatting so print header separaetly
+        header = result[0:2]
+        for line in header:
+            print line
+        for line in result[2:]:
+            print '\t'.join(line)
+        
     elif args.typeOfFile == 'phenotype':
         result = convertLabelstoCLS(data)
     else:
         print 'You have specified the wrong type of argument to type of file'
-
-    for entry in result:
-        print entry    
+ 
     
 if __name__ == '__main__':
     main()
