@@ -32,15 +32,12 @@ def convertLabelstoCLS(data):
     labels = []
     for line in data:
         for entry in line:
-            labels.append(line)
-    # Determine how many classes there are
+            labels.append(entry)
+    # Get rid of the column header
+    labels.remove('x')
+    # Determine how many classes there are. The order of cases is lost
     samples = str(len(labels))
-    classes = []
-    for entry in labels:
-        if entry not in classes:
-            classes.append(entry)
-        else:
-            continue
+    classes = list(set(labels))
     numClasses = str(len(classes))
     #Package up values for returning a list
     result = []
