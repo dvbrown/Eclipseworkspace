@@ -37,7 +37,12 @@ def convertLabelstoCLS(data):
     labels.remove('x')
     # Determine how many classes there are. The order of cases is lost
     samples = str(len(labels))
-    classes = list(set(labels))
+    classes = []
+    for entry in labels:
+        if entry not in classes:
+            classes.append(entry)
+        else:
+            continue
     numClasses = str(len(classes))
     #Package up values for returning a list
     result = []
