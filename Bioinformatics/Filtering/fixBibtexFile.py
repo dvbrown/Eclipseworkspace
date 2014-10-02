@@ -6,8 +6,8 @@ import argparse
 
 def parseBibtexFile(fileString):
     "Opens a bibtext file and prints a list of dictionaries for reference entries"
-    bibtex_file = open(fileString)
-    bibtex_str = bibtex_file.read(bibtex_file)
+    with open(fileString) as bibtex_file:
+        bibtex_str = bibtex_file.read()
 
     bib_database = bibtexparser.loads(bibtex_str)
     return bib_database
@@ -20,13 +20,9 @@ def main():
     parser.add_argument('-o', '--outputData', required=False, help='The file you get at the end')
     args = parser.parse_args()
     
-    # references = parseBibtexFile(args.inputData)
-    with open(args.inputData) as bibtex_file:
-        bibtex_str = bibtex_file.read()
-
-    bib_database = bibtexparser.loads(bibtex_str)
-    print(bib_database.entries)
-    #print(references)
+    fileString = args.inputData
+    references = parseBibtexFile(fileString)
+    print(references.entries)
     
     
     
