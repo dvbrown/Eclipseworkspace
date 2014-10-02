@@ -1,8 +1,16 @@
 #!/usr/bin/python2.7
 #A script to parse 384 well files and transpose to column vector
 
-import argparse, string, itertools, csv
-import aUsefulFunctionsFiltering 
+import bibtexparser
+import argparse 
+
+def parseBibtexFile(fileString):
+    "Opens a bibtext file and prints a list of dictionaries for reference entries"
+    bibtex_file = open(fileString)
+    bibtex_str = bibtex_file.read(bibtex_file)
+
+    bib_database = bibtexparser.loads(bibtex_str)
+    return bib_database
 
 def main():
     parser = argparse.ArgumentParser(description="""Reads an input file that is a bibtex flat file containing referencing information
@@ -12,11 +20,13 @@ def main():
     parser.add_argument('-o', '--outputData', required=False, help='The file you get at the end')
     args = parser.parse_args()
     
-    bibtex = aUsefulFunctionsFiltering.readAfile(args.inputData)
-    #for line in bibtex:
-    entry = [i for i in bibtex]
-        
-    print bibtex
+    # references = parseBibtexFile(args.inputData)
+    with open(args.inputData) as bibtex_file:
+        bibtex_str = bibtex_file.read()
+
+    bib_database = bibtexparser.loads(bibtex_str)
+    print(bib_database.entries)
+    #print(references)
     
     
     
