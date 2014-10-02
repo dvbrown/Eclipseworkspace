@@ -2,15 +2,23 @@
 #A script to parse 384 well files and transpose to column vector
 
 import bibtexparser
-import argparse 
+import argparse
+from bibtexparser.bparser import BibTexParser
+from bibtexparser.customization import convert_to_unicode
 
 def parseBibtexFile(fileString):
     "Opens a bibtext file and prints a list of dictionaries for reference entries"
     with open(fileString) as bibtex_file:
-        bibtex_str = bibtex_file.read()
-
-    bib_database = bibtexparser.loads(bibtex_str)
-    return bib_database
+#===============================================================================
+#        bibtex_str = bibtex_file.read()
+# 
+#    bib_database = bibtexparser.loads(bibtex_str)
+#    return bib_database
+#===============================================================================
+        parser = BibTexParser()
+        parser.customization = convert_to_unicode
+        bib_database = bibtexparser.load(bibtex_file, parser=parser)
+        return bib_database
 
 def deleteAnote(parsedBibtexFile):
     "Removes the annote field from the bibtex file"
@@ -25,9 +33,7 @@ def writebibTex(fileName, fixedBibtex):
     'Open a file and write rows in tab delimited format'
     w = open(fileName, 'w')
     w.write(fixedBibtex.encode('utf8'))
-    #w.write(fixedBibtex)
-    w.close()
-    return None    
+    w.close() 
 
 
 def main():
@@ -39,6 +45,7 @@ def main():
     
     fileString = args.inputData
     references = parseBibtexFile(fileString)
+    print references.entries
     
     fixedRefs = deleteAnote(references)
     #print fixedRefs
