@@ -12,6 +12,15 @@ def parseBibtexFile(fileString):
     bib_database = bibtexparser.loads(bibtex_str)
     return bib_database
 
+def deleteAnote(parsedBibtexFile):
+    "Removes the annote field from the bibtex file"
+    entries = parsedBibtexFile.entries
+    for d in entries:
+        if 'annote' in d.keys():
+            del d['annote']
+        #print d.values()
+    return entries
+
 def main():
     parser = argparse.ArgumentParser(description="""Reads an input file that is a bibtex flat file containing referencing information
     and removes useless fields like.""")
@@ -22,9 +31,13 @@ def main():
     
     fileString = args.inputData
     references = parseBibtexFile(fileString)
-    print(references.entries)
     
+    fixedRefs = deleteAnote(references)
+    #print fixedRefs
     
+    references.entries = fixedRefs
+    result = bibtexparser.dumps(references)
+    print result
     
 if __name__ == '__main__':
     main()
