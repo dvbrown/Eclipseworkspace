@@ -21,12 +21,20 @@ def deleteAnote(parsedBibtexFile):
         #print d.values()
     return entries
 
+def writebibTex(fileName, fixedBibtex):
+    'Open a file and write rows in tab delimited format'
+    w = open(fileName, 'w')
+    w.write(fixedBibtex.encode('utf8'))
+    #w.write(fixedBibtex)
+    w.close()
+    return None    
+
+
 def main():
     parser = argparse.ArgumentParser(description="""Reads an input file that is a bibtex flat file containing referencing information
-    and removes useless fields like.""")
+    and removes useless fields like. Emits strings to the standard output""")
     parser.add_argument('-i', '--inputData', required=True, help='''The file containing elements you want to change. 
         The input file should just contain data and no column/ row headers etc''')
-    parser.add_argument('-o', '--outputData', required=False, help='The file you get at the end')
     args = parser.parse_args()
     
     fileString = args.inputData
@@ -37,7 +45,8 @@ def main():
     
     references.entries = fixedRefs
     result = bibtexparser.dumps(references)
-    print result
+    
+    writebibTex('output.bib', result)
     
 if __name__ == '__main__':
     main()
