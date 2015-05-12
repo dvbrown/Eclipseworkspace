@@ -29,10 +29,10 @@ def main():
     Usage: squaashDataMunging -s 'Name'
     """)
     parser.add_argument('-s', '--slideName', required=True, help='The name of the slide used in the immunofluorescence. Will be used to add a filename to the row.')
-    parser.add_argument('-o', '--outputData', required=False, help='The csv file you get at the end')
+    parser.add_argument('-o', '--outputData', required=False, help='The csv file you get at the end. Otherwise redirect output')
     args = parser.parse_args()
     
-    # Parse commandline arguments
+    # Parse commandline argument
     slideName = args.slideName
     folder = os.listdir(".")
     
@@ -42,6 +42,7 @@ def main():
     data = readAfile(folder[0])
     outputFile.append(data[0])
     
+    # Extract the data from each file
     for f in folder:
         data = readAfile(f)
         # Retain only the last (3rd) row which contains the measurements
