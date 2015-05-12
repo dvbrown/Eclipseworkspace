@@ -34,7 +34,9 @@ def main():
     
     # Parse commandline argument
     slideName = args.slideName
-    folder = os.listdir(".")
+    fold = os.listdir(".")
+    # Retain only files from Squaash via list comprehension
+    folder = [s for s in fold if "merged" in s]
     
     # The container for the output file
     outputFile = []
@@ -53,7 +55,7 @@ def main():
     
     # Print the data to the standard output
     for row in outputFile:
-        print "\t".join(row)
+        print ",".join(row)
        
 # Boiler plate to run code
 if __name__ == '__main__':
