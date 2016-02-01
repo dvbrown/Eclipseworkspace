@@ -183,25 +183,31 @@ if options.verbose:
 
 inputFile = options.input_file
 
-@transform(inputFile, suffix(".bam"), ['.SA.sam', ".extractSA.txt"])
-def getSecAlignment(inputFile, outFiles):
-    'Extract reads with secondary alignment flag in Sam'
-    mtDNA_deletion.extractSecondaryAlignments(inputFile, outFiles)
+#@transform(inputFile, suffix(".bam"), ['.SA.sam', ".extractSA.txt"])
+#def getSecAlignment(inputFile, outFiles):
+#    'Extract reads with secondary alignment flag in Sam'
+#    mtDNA_deletion.extractSecondaryAlignments(inputFile, outFiles)
+#    
+#@transform(getSecAlignment, suffix(".sam"), ['.bam', ".catHeader.txt"])
+#def catHeader(inputFile, outFiles):
+#    'Extract reads with secondary alignment flag in Sam'
+#    # Because the output of the previous step is an array of 2 take only the first element (ie not the touchfile)
+#    mtDNA_deletion.addSamHeader(inputFile[0], outFiles)
+#    
+#@transform(catHeader, suffix(".bam"), ['.sort.bam', ".sort.txt"])
+#def sortBam(inputFile, outFiles):
+#    'Sort reads with samtools'
+#    mtDNA_deletion.sortSamtools(inputFile[0], outFiles)
+#
+#@transform(sortBam, suffix(".bam"), ["", "index.txt"])
+#def index(inputFile, outFiles):
+#    'Sort reads with samtools'
+#    mtDNA_deletion.indexSamtools(inputFile[0], outFiles)
     
-@transform(getSecAlignment, suffix(".sam"), ['.bam', ".catHeader.txt"])
-def catHeader(inputFile, outFiles):
-    'Extract reads with secondary alignment flag in Sam'
-    mtDNA_deletion.addSamHeader(inputFile[0], outFiles)
-    
-@transform(catHeader, suffix(".bam"), ['.sort.bam', ".sort.txt"])
-def sortBam(inputFile, outFiles):
-    'Sort reads with samtools'
-    mtDNA_deletion.sortSamtools(inputFile[0], outFiles)
-
-@transform(sortBam, suffix(".bam"), ["", "index.txt"])
-def index(inputFile, outFiles):
-    'Sort reads with samtools'
-    mtDNA_deletion.indexSamtools(inputFile[0], outFiles)
+@transform(inputFile, suffix(".bam"), ['.bed', ".bam2Bed.txt"])
+def convertBed(inputFile, outFiles):
+    'Convert bam to Bed'
+    mtDNA_deletion.convertToBed(inputFile, outFiles)
 
 #88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
 

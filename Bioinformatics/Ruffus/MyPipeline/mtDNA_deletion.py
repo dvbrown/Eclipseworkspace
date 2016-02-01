@@ -20,7 +20,7 @@ def runJob(comm, taskName, flagFile):
 def extractSecondaryAlignments(bamFile, outFiles):
     output, flagFile = outFiles
     os.system("samtools view -H {} > header.sam".format(bamFile))
-    com = "samtools view -h {} | grep 'SA:' > {}".format(bamFile, output)
+    com = "samtools view {} | grep 'SA:' > {}".format(bamFile, output)
     runJob(com, "extractSecondaryAlignments", flagFile)
 
 def addSamHeader(samFile, outFiles):
@@ -40,3 +40,14 @@ def indexSamtools(bamFile, output):
     # No touch file therefore invoke os.system directly
     os.system(com)
     
+def convertToBed(bamfile, outFiles):
+    '''Convert the bam file of chimeric reads to bed and retain the secondary 
+    alignment flag as the score field in the bed file'''
+    output, flagFile = outFiles
+    # Write a temporary bed file
+    os.system('bedtools bamtobed -i {} > temp.bed'.format(bamfile))
+    # Extract the SA tag from same bam file and paste it as a column to the temp bed file
+    com = "samtools view -h {0} | awk {{'print $17'}} | paste temp.bed - > {1}".format(bamfile, output)
+    runJob(com, 'BamToBed SA', flagFile)
+    # Clean up bed file
+    os.system('rm temp.bed')
