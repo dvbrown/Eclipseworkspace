@@ -1,4 +1,4 @@
-import time, os, re, subprocess
+import time, os, re, subprocess, csv
 
 # Global parameters
 refTranscripts = '/vlsci/VR0238/shared/DanB_batch1/trimFastq/bowtie2Align/mergeMarkDupBam/genes.gtf'
@@ -40,14 +40,30 @@ def indexSamtools(bamFile, output):
     # No touch file therefore invoke os.system directly
     os.system(com)
     
-def convertToBed(bamfile, outFiles):
-    '''Convert the bam file of chimeric reads to bed and retain the secondary 
-    alignment flag as the score field in the bed file'''
+#def convertToBed(bamfile, outFiles):
+#    '''Convert the bam file of chimeric reads to bed and retain the secondary 
+#    alignment flag as the score field in the bed file'''
+#    output, flagFile = outFiles
+#    # Write a temporary bed file
+#    os.system('bedtools bamtobed -i {} > temp.bed'.format(bamfile))
+#    # Extract the SA tag from same bam file and paste it as a column to the temp bed file
+#    com = "samtools view -h {0} | awk {{'print $17'}} | paste temp.bed - > {1}".format(bamfile, output)
+#    runJob(com, 'BamToBed SA', flagFile)
+#    # Clean up bed file
+#    os.system('rm temp.bed')
+    
+def convertToBed(bamfile):
+    '''Sort the bam file by coordinate to have split reads next to each other
+    The convert to bed'''
     output, flagFile = outFiles
-    # Write a temporary bed file
-    os.system('bedtools bamtobed -i {} > temp.bed'.format(bamfile))
-    # Extract the SA tag from same bam file and paste it as a column to the temp bed file
-    com = "samtools view -h {0} | awk {{'print $17'}} | paste temp.bed - > {1}".format(bamfile, output)
+    com = "samtools sort -n {0} | bedtools bamtobed -i > {1}".format(bamfile, output)
     runJob(com, 'BamToBed SA', flagFile)
-    # Clean up bed file
-    os.system('rm temp.bed')
+    
+def collapseSplitReads(bedFile):
+    'Read in a bedfile as a dictonary'
+    with open(bedFile, mode='r') as infile:
+            reader = csv.reader(infile)
+            mydict = {rows[3]:rows[0:2,4,5] for rows in reader}
+    infile.close
+    for k,v in mydict.items:
+        print k + v
