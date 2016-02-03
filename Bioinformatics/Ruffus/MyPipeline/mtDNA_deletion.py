@@ -1,4 +1,5 @@
 import time, os, re, subprocess, csv
+import pandas as pd
 
 # Global parameters
 refTranscripts = '/vlsci/VR0238/shared/DanB_batch1/trimFastq/bowtie2Align/mergeMarkDupBam/genes.gtf'
@@ -11,9 +12,7 @@ def runJob(comm, taskName, flagFile):
     print '\n################################################### RUNNNG TASK ' + taskName + ' at {0}'.format(started) + ' ###############################################'
     print comm + '\n'
     #run the command
-    #subprocess.check_call(comm, stderr=subprocess.STDOUT ,shell=True)
     os.system(comm)
-    #touch file indicates success. It should be empty if there was success 
     finished = time.strftime('%X %x %Z')
     open(flagFile , 'w').write(finished)
 
@@ -52,18 +51,30 @@ def indexSamtools(bamFile, output):
 #    # Clean up bed file
 #    os.system('rm temp.bed')
     
-def convertToBed(bamfile):
+def convertToBed(bamfile, outFiles):
     '''Sort the bam file by coordinate to have split reads next to each other
     The convert to bed'''
     output, flagFile = outFiles
     com = "samtools sort -n {0} | bedtools bamtobed -i > {1}".format(bamfile, output)
     runJob(com, 'BamToBed SA', flagFile)
     
-def collapseSplitReads(bedFile):
-    'Read in a bedfile as a dictonary'
-    with open(bedFile, mode='r') as infile:
-            reader = csv.reader(infile)
-            mydict = {rows[3]:rows[0:2,4,5] for rows in reader}
-    infile.close
-    for k,v in mydict.items:
-        print k + v
+def collapseSplitReads(bedFile, outFiles):
+    'Read in a bedfile as a pandas dataframe then output split reads side by side in a table'
+    output, flagFile = outFiles
+    # Read in data and split the first occurance of a read by its duplicate entries (alternate mappings)
+    df = pd.read_csv(bedFile, sep="\t", header=None)
+    dfLeft = df[df.duplicated(subset=3, keep='first')]
+    dfRight = df[~df.duplicated(subset=3, keep='first')]
+    # Merge by read name
+    dfJoin = pd.merge(dfLeft, dfRight, how='inner', on=3)
+    # Rename columns
+    dfJoin.columns = ['chr_L', 'start_L', 'end_L', 'read_name', 'map_score_L', 'strand_L', 
+    'chr_R', 'start_R', 'end_R', 'map_score_R', 'strand_R']
+    # Set index of dataframe to read name, modifying the original object
+    dfJoin.set_index('read_name', inplace=True)
+    # Write to file
+    dfJoin.to_csv(output, sep='\t')
+    # Write the flagFile
+    finished = time.strftime('%X %x %Z')
+    open(flagFile , 'w').write(finished)
+        

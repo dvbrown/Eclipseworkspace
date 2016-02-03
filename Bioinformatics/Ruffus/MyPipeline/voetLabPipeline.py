@@ -204,10 +204,15 @@ inputFile = options.input_file
 #    'Sort reads with samtools'
 #    mtDNA_deletion.indexSamtools(inputFile[0], outFiles)
     
-@transform(inputFile, suffix(".bam"), ['.bed', ".bam2Bed.txt"])
-def convertBed(inputFile, outFiles):
-    'Convert bam to Bed'
-    mtDNA_deletion.convertToBed(inputFile, outFiles)
+#@transform(inputFile, suffix(".bam"), ['.bed', ".bam2Bed.txt"])
+#def convertBed(inputFile, outFiles):
+#    'Convert bam to Bed'
+#    mtDNA_deletion.convertToBed(inputFile, outFiles)
+    
+@transform(inputFile, suffix(".bed"), ['.split.bed', 'splitRead.txt'])
+def castSplitReads(inputFile, output):
+    'Extract the secondary split read from bed file and append as columns next to the first split read entry'
+    mtDNA_deletion.collapseSplitReads(inputFile, output)
 
 #88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
 
