@@ -78,3 +78,16 @@ def collapseSplitReads(bedFile, outFiles):
     finished = time.strftime('%X %x %Z')
     open(flagFile , 'w').write(finished)
         
+def filterSplitReads(bedFile, outFiles):
+    'This script is work in progress - go up to '
+    df = pd.read_csv("None-D99-1_S1_L001_bwa_RG_NA.sorted.SA.sort.split.bed", sep="\t", index_col = 0)
+
+    # Filter reads that span the circular chromosome
+    dfNo_origin = df[(df.start_L != 0) &  (df.start_R != 0)]
+    
+    # Filter split reads that align to separate strands
+    dfStrand = dfNo_origin[dfNo_origin.strand_L == dfNo_origin.strand_R]
+    
+    dfStrand.to_csv('test.bed', sep='\t')
+    # Next, only the deletions that are sequenced more than once for both sense and antisense strands 
+    # and with identical breakpoints will be selected. The number of reads in both senses will be listed and summed.
