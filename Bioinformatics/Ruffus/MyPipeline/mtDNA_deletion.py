@@ -66,6 +66,12 @@ def alignMtDNA(unalignedBam, outFiles):
     """.format(picardLoc, unalignedBam, output, referenceGenome)
     runJob(comm, "cleanAndAlignBam", flagFile)
     
+def delly(inputFile, outFiles):
+    'Run the best deletion tools I can find which is delly'
+    output, flagFile = outFiles
+    comm = "/Users/u0107775/Bioinformatics/delly/src/delly -t DEL -o {2} -g {1} {0}".format(inputFile, referenceGenome, output)
+    runJob(comm, "run delly for deletions", flagFile)
+    
 def indelList():
     'Produce a list of know indels'
     comm = """java -Xmx1g -jar {0}GenomeAnalysisTK.jar \

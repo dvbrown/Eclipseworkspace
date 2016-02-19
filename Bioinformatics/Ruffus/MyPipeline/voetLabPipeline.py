@@ -15,8 +15,8 @@
 import sys, os
 import tasks
 import postAlign
-#import mtDNA_deletion
-import bbmap
+import mtDNA_deletion
+#import bbmap
 
 #88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
 
@@ -184,10 +184,10 @@ if options.verbose:
 
 inputFile = options.input_file
 
-@transform(inputFile, suffix(".fastq.gz"), ['.bam', 'align.txt'])
-def convertFq(inputFile, output):
-    'Align with BBmap'
-    bbmap.alignMtDNA(inputFile, output)
+#@transform(inputFile, suffix(".fastq.gz"), ['.bam', 'align.txt'])
+#def convertFq(inputFile, output):
+#    'Align with BBmap'
+#    bbmap.alignMtDNA(inputFile, output)
 
 #@transform(inputFile, suffix(".fastq"), ['.U.bam', 'unaligned.txt'])
 #def convertFq(inputFile, output):
@@ -199,10 +199,15 @@ def convertFq(inputFile, output):
 #    'Convert the fastq files to unaligned bam'
 #    mtDNA_deletion.markAdapters(inputFile[0], output)
 #    
-#@transform(convertFq, suffix(".bam"), ['.mt.bam', 'mt.txt'])
-#def alignMtDNA(inputFile, output):
-#    'Align the cleaned files to the mitochondira DNA genome'
-#    mtDNA_deletion.markAdapters(inputFile[0], output)
+@transform(inputFile, suffix(".bam"), ['.mt.bam', 'mt.txt'])
+def alignMtDNA(inputFile, output):
+    'Align the cleaned files to the mitochondira DNA genome'
+    mtDNA_deletion.alignMtDNA(inputFile[0], output)
+    
+@transform(alignMtDNA, suffix(".bam"), ['del.vcf', 'del.txt'])
+def runDelly(inputFile, output):
+    'Align the cleaned files to the mitochondira DNA genome'
+    mtDNA_deletion.delly(inputFile[0], output)
 
 #@transform(inputFile, suffix(".bam"), ['.SA.sam', ".extractSA.txt"])
 #def getSecAlignment(inputFile, outFiles):
