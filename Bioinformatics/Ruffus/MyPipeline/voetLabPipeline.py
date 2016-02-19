@@ -15,7 +15,8 @@
 import sys, os
 import tasks
 import postAlign
-import mtDNA_deletion
+#import mtDNA_deletion
+import bbmap
 
 #88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
 
@@ -183,6 +184,26 @@ if options.verbose:
 
 inputFile = options.input_file
 
+@transform(inputFile, suffix(".fastq.gz"), ['.bam', 'align.txt'])
+def convertFq(inputFile, output):
+    'Align with BBmap'
+    bbmap.alignMtDNA(inputFile, output)
+
+#@transform(inputFile, suffix(".fastq"), ['.U.bam', 'unaligned.txt'])
+#def convertFq(inputFile, output):
+#    'Convert the fastq files to unaligned bam'
+#    mtDNA_deletion.convertUnalignedBam(inputFile, output)
+#    
+#@transform(convertFq, suffix(".U.bam"), ['.txt', 'adapters.txt'])
+#def markIlumminaAdapters(inputFile, output):
+#    'Convert the fastq files to unaligned bam'
+#    mtDNA_deletion.markAdapters(inputFile[0], output)
+#    
+#@transform(convertFq, suffix(".bam"), ['.mt.bam', 'mt.txt'])
+#def alignMtDNA(inputFile, output):
+#    'Align the cleaned files to the mitochondira DNA genome'
+#    mtDNA_deletion.markAdapters(inputFile[0], output)
+
 #@transform(inputFile, suffix(".bam"), ['.SA.sam', ".extractSA.txt"])
 #def getSecAlignment(inputFile, outFiles):
 #    'Extract reads with secondary alignment flag in Sam'
@@ -194,7 +215,7 @@ inputFile = options.input_file
 #    # Because the output of the previous step is an array of 2 take only the first element (ie not the touchfile)
 #    mtDNA_deletion.addSamHeader(inputFile[0], outFiles)
 #    
-#@transform(catHeader, suffix(".bam"), ['.sort.bam', ".sort.txt"])
+#@transform(alignMtDNA, suffix(".bam"), ['.sort.bam', ".sort.txt"])
 #def sortBam(inputFile, outFiles):
 #    'Sort reads with samtools'
 #    mtDNA_deletion.sortSamtools(inputFile[0], outFiles)
@@ -202,17 +223,17 @@ inputFile = options.input_file
 #@transform(sortBam, suffix(".bam"), ["", "index.txt"])
 #def index(inputFile, outFiles):
 #    'Sort reads with samtools'
-#    mtDNA_deletion.indexSamtools(inputFile[0], outFiles)
+#    mtDNA_deletion.indexSamtools(inputFile, outFiles)
     
 #@transform(inputFile, suffix(".bam"), ['.bed', ".bam2Bed.txt"])
 #def convertBed(inputFile, outFiles):
 #    'Convert bam to Bed'
 #    mtDNA_deletion.convertToBed(inputFile, outFiles)
     
-@transform(inputFile, suffix(".bed"), ['.split.bed', 'splitRead.txt'])
-def castSplitReads(inputFile, output):
-    'Extract the secondary split read from bed file and append as columns next to the first split read entry'
-    mtDNA_deletion.collapseSplitReads(inputFile, output)
+#@transform(inputFile, suffix(".bed"), ['.split.bed', 'splitRead.txt'])
+#def castSplitReads(inputFile, output):
+#    'Extract the secondary split read from bed file and append as columns next to the first split read entry'
+#    mtDNA_deletion.collapseSplitReads(inputFile, output)
 
 #88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
 

@@ -2,8 +2,9 @@ import time, os, re, subprocess, csv
 import pandas as pd
 
 # Global parameters
-refTranscripts = '/vlsci/VR0238/shared/DanB_batch1/trimFastq/bowtie2Align/mergeMarkDupBam/genes.gtf'
-picardLoc = '/Users/u0107775/Bioinformatics/picard-tools-2.0.1'
+picardLoc = '/Users/u0107775/Bioinformatics/picard-tools-2.0.1/'
+bioinformaticsDir = '/Users/u0107775/Bioinformatics/resources/rCRS_Mitochondira_fasta_noLines.fa'
+referenceGenome = '/Users/u0107775/Bioinformatics/resources'
 
 def runJob(comm, taskName, flagFile):
     '''An internal function used by the rest of the functions to spawn a process in the shell, capture the standard output 
@@ -15,6 +16,77 @@ def runJob(comm, taskName, flagFile):
     os.system(comm)
     finished = time.strftime('%X %x %Z')
     open(flagFile , 'w').write(finished)
+    
+def convertUnalignedBam(inputFile, outFiles):
+    'The mark illumina adapters need a bam file'
+    read1 = inputFile
+    read2 = inputFile.replace('_R1_', '_R2_')
+    output, flagFile = outFiles
+    comm = """java -Xmx2G -jar {0}picard.jar FastqToSam \
+    FASTQ={1} FASTQ2={2} \
+    OUTPUT={3} \
+    READ_GROUP_NAME=test \
+    SAMPLE_NAME=test \
+    LIBRARY_NAME=Illumina \
+    PLATFORM_UNIT=H0164ALXX140820.2 \
+    PLATFORM=illumina \
+    SEQUENCING_CENTER=Brussels""".format(picardLoc, read1, read2, output)
+    runJob(comm, "convertunaligned", flagFile)
+    
+def markAdapters(unalignmedBam, outFiles):
+    output, flagFile = outFiles
+    comm= """java -Xmx2G -jar {0}picard.jar MarkIlluminaAdapters \
+    I={1} O={2} \
+    M=markilluminaadapters_metrics.txt \
+    TMP_DIR=/Users/u0107775/Bioinformatics/temp
+    """.format(picardLoc, unalignmedBam, output)
+    runJob(comm, "markAdapters", flagFile)
+    
+def alignMtDNA(unalignedBam, outFiles):
+    'Align the sequencing reads against the mitochondrai genome. Add read group info later'
+    output, flagFile = outFiles
+    comm = """java -Xmx2G -jar {0}picard.jar SamToFastq \
+    I={1} \
+    FASTQ=/dev/stdout \ CLIPPING_ATTRIBUTE=XT \
+    CLIPPING_ACTION=2 \ INTERLEAVE=true \ 
+    NON_PF=true \
+    TMP_DIR=/Users/u0107775/Bioinformatics/temp | \
+    bwa mem -M -t 3 -p {3} \ 
+    /dev/stdin | \  
+    java -Xmx3G -jar {0}picard.jar MergeBamAlignment \
+    ALIGNED_BAM=/dev/stdin \
+    UNMAPPED_BAM={1} \ 
+    OUTPUT={2} \
+    R={3} \
+    CREATE_INDEX=true ADD_MATE_CIGAR=true \
+    CLIP_ADAPTERS=false CLIP_OVERLAPPING_READS=true \
+    INCLUDE_SECONDARY_ALIGNMENTS=true MAX_INSERTIONS_OR_DELETIONS=-1 \
+    PRIMARY_ALIGNMENT_STRATEGY=MostDistant ATTRIBUTES_TO_RETAIN=XS \
+    MP_DIR=/Users/u0107775/Bioinformatics/temp
+    """.format(picardLoc, unalignedBam, output, referenceGenome)
+    runJob(comm, "cleanAndAlignBam", flagFile)
+    
+def indelList():
+    'Produce a list of know indels'
+    comm = """java -Xmx1g -jar {0}GenomeAnalysisTK.jar \
+     -T RealignerTargetCreator \
+     -R {0}rCRS_Mitochondira_fasta_noLines.fa \
+     -o {0}output.intervals \
+     -known {0}Mills_and_1000G_gold_standard.indels.hg38.vcf""".format(bioinformaticsDir)
+    os.system(comm)
+
+def localRealignment(bamFile, outFiles):
+    'Perform local realignment'
+    output, flagFile = outFiles
+    comm = """ java -Xmx4g -Djava.io.tmpdir=/path/to/tmpdir \
+    -jar {0}GenomeAnalysisTK.jar \
+    -R  \
+    -T IndelRealigner \
+    -targetIntervals  \
+    -o  \
+    -known /path/to/indel_calls.vcf
+    -LOD 0.4"""
+    runJob(com, "extractSecondaryAlignments", flagFile)
 
 def extractSecondaryAlignments(bamFile, outFiles):
     output, flagFile = outFiles
@@ -66,7 +138,8 @@ def collapseSplitReads(bedFile, outFiles):
     dfLeft = df[df.duplicated(subset=3, keep='first')]
     dfRight = df[~df.duplicated(subset=3, keep='first')]
     # Merge by read name
-    dfJoin = pd.merge(dfLeft, dfRight, how='inner', on=3)
+    #dfJoin = pd.merge(dfLeft, dfRight, how='inner', on=3)
+    dfJoin = pd.merge(dfRight, dfLeft, how='inner', on=3)
     # Rename columns
     dfJoin.columns = ['chr_L', 'start_L', 'end_L', 'read_name', 'map_score_L', 'strand_L', 
     'chr_R', 'start_R', 'end_R', 'map_score_R', 'strand_R']
@@ -77,6 +150,7 @@ def collapseSplitReads(bedFile, outFiles):
     # Write the flagFile
     finished = time.strftime('%X %x %Z')
     open(flagFile , 'w').write(finished)
+    
         
 def filterSplitReads(bedFile, outFiles):
     'This script is work in progress - go up to '
@@ -91,3 +165,7 @@ def filterSplitReads(bedFile, outFiles):
     dfStrand.to_csv('test.bed', sep='\t')
     # Next, only the deletions that are sequenced more than once for both sense and antisense strands 
     # and with identical breakpoints will be selected. The number of reads in both senses will be listed and summed.
+    
+def filterInsertSize():
+    'This command filters the bam file for inserts larger than 497'
+    comm = '''samtools view None-D99-1_S1_L001_bwa_RG_NA.sorted.bam | awk '{ if ($9 >= 497) print }' > testInsert3SD.sam'''
