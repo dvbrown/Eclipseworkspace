@@ -3,8 +3,8 @@ import pandas as pd
 
 # Global parameters
 picardLoc = '/Users/u0107775/Bioinformatics/picard-tools-2.0.1/'
-bioinformaticsDir = '/Users/u0107775/Bioinformatics/resources/rCRS_Mitochondira_fasta_noLines.fa'
-referenceGenome = '/Users/u0107775/Bioinformatics/resources'
+bioinformaticsDir = '/Users/u0107775/Bioinformatics/resources/'
+referenceGenome = '/Users/u0107775/Bioinformatics/resources/rCRS_Mitochondira_fasta_noLines.fa'
 
 def runJob(comm, taskName, flagFile):
     '''An internal function used by the rest of the functions to spawn a process in the shell, capture the standard output 
@@ -47,22 +47,18 @@ def alignMtDNA(unalignedBam, outFiles):
     output, flagFile = outFiles
     comm = """java -Xmx2G -jar {0}picard.jar SamToFastq \
     I={1} \
-    FASTQ=/dev/stdout \ CLIPPING_ATTRIBUTE=XT \
-    CLIPPING_ACTION=2 \ INTERLEAVE=true \ 
-    NON_PF=true \
+    FASTQ=/dev/stdout CLIPPING_ATTRIBUTE='XT' \
+    CLIPPING_ACTION=2 INTERLEAVE=true NON_PF=true \
     TMP_DIR=/Users/u0107775/Bioinformatics/temp | \
-    bwa mem -M -t 3 -p {3} \ 
-    /dev/stdin | \  
+    bwa mem -M -t 3 -p {3} /dev/stdin | \
     java -Xmx3G -jar {0}picard.jar MergeBamAlignment \
-    ALIGNED_BAM=/dev/stdin \
-    UNMAPPED_BAM={1} \ 
-    OUTPUT={2} \
-    R={3} \
+    ALIGNED_BAM=/dev/stdin UNMAPPED_BAM={1} \
+    OUTPUT={2} R={3} \
     CREATE_INDEX=true ADD_MATE_CIGAR=true \
     CLIP_ADAPTERS=false CLIP_OVERLAPPING_READS=true \
     INCLUDE_SECONDARY_ALIGNMENTS=true MAX_INSERTIONS_OR_DELETIONS=-1 \
     PRIMARY_ALIGNMENT_STRATEGY=MostDistant ATTRIBUTES_TO_RETAIN=XS \
-    MP_DIR=/Users/u0107775/Bioinformatics/temp
+    TMP_DIR=/Users/u0107775/Bioinformatics/temp
     """.format(picardLoc, unalignedBam, output, referenceGenome)
     runJob(comm, "cleanAndAlignBam", flagFile)
     

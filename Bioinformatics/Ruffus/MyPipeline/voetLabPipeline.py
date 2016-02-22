@@ -202,7 +202,7 @@ inputFile = options.input_file
 @transform(inputFile, suffix(".bam"), ['.mt.bam', 'mt.txt'])
 def alignMtDNA(inputFile, output):
     'Align the cleaned files to the mitochondira DNA genome'
-    mtDNA_deletion.alignMtDNA(inputFile[0], output)
+    mtDNA_deletion.alignMtDNA(inputFile, output)
     
 @transform(alignMtDNA, suffix(".bam"), ['del.vcf', 'del.txt'])
 def runDelly(inputFile, output):
