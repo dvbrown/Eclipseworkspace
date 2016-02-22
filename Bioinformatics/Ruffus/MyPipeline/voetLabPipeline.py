@@ -207,7 +207,7 @@ def alignMtDNA(inputFile, output):
 @transform(alignMtDNA, suffix(".bam"), ['.s.bam', ".sort.txt"])
 def sortBam(inputFile, output):
     'Sort reads with samtools'
-    mtDNA_deletion.sortSamtools(inputFile[0], outFiles)
+    mtDNA_deletion.sortSamtools(inputFile[0], output)
     
 @transform(sortBam, suffix(".bam"), ["", "index.txt"])
 def index(inputFile, output):
