@@ -204,7 +204,17 @@ def alignMtDNA(inputFile, output):
     'Align the cleaned files to the mitochondira DNA genome'
     mtDNA_deletion.alignMtDNA(inputFile[0], output)
     
-@transform(alignMtDNA, suffix(".mt.bam"), ['del.vcf', 'del.txt'])
+@transform(alignMtDNA, suffix(".bam"), ['.s.bam', ".sort.txt"])
+def sortBam(inputFile, output):
+    'Sort reads with samtools'
+    mtDNA_deletion.sortSamtools(inputFile[0], outFiles)
+    
+@transform(sortBam, suffix(".bam"), ["", "index.txt"])
+def index(inputFile, output):
+    'Sort reads with samtools'
+    mtDNA_deletion.indexSamtools(inputFile[0], output) 
+     
+@transform(sortBam, suffix(".bam"), ['del.vcf', 'del.txt'])
 def runDelly(inputFile, output):
     'Align the cleaned files to the mitochondira DNA genome'
     mtDNA_deletion.delly(inputFile[0], output)
@@ -220,16 +230,8 @@ def runDelly(inputFile, output):
 #    # Because the output of the previous step is an array of 2 take only the first element (ie not the touchfile)
 #    mtDNA_deletion.addSamHeader(inputFile[0], outFiles)
 #    
-#@transform(alignMtDNA, suffix(".bam"), ['.sort.bam', ".sort.txt"])
-#def sortBam(inputFile, outFiles):
-#    'Sort reads with samtools'
-#    mtDNA_deletion.sortSamtools(inputFile[0], outFiles)
-#
-#@transform(sortBam, suffix(".bam"), ["", "index.txt"])
-#def index(inputFile, outFiles):
-#    'Sort reads with samtools'
-#    mtDNA_deletion.indexSamtools(inputFile, outFiles)
-    
+
+
 #@transform(inputFile, suffix(".bam"), ['.bed', ".bam2Bed.txt"])
 #def convertBed(inputFile, outFiles):
 #    'Convert bam to Bed'

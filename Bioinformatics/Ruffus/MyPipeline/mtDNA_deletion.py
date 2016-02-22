@@ -53,7 +53,7 @@ def alignMtDNA(unalignedBam, outFiles):
     FASTQ=/dev/stdout CLIPPING_ATTRIBUTE='XT' \
     CLIPPING_ACTION=2 INTERLEAVE=true NON_PF=true \
     TMP_DIR=/Users/u0107775/Bioinformatics/temp | \
-    bwa mem -M -R {4} -t 3 -p {3} /dev/stdin | \
+    bwa mem -M -t 3 -p {3} /dev/stdin | \
     java -Xmx3G -jar {0}picard.jar MergeBamAlignment \
     ALIGNED_BAM=/dev/stdin UNMAPPED_BAM={1} \
     OUTPUT={2} R={3} \
@@ -62,12 +62,14 @@ def alignMtDNA(unalignedBam, outFiles):
     INCLUDE_SECONDARY_ALIGNMENTS=true MAX_INSERTIONS_OR_DELETIONS=-1 \
     PRIMARY_ALIGNMENT_STRATEGY=MostDistant ATTRIBUTES_TO_RETAIN=XS \
     TMP_DIR=/Users/u0107775/Bioinformatics/temp
-    """.format(picardLoc, unalignedBam, output, referenceGenome, readGroup)
+    """.format(picardLoc, unalignedBam, output, referenceGenome)
     runJob(comm, "cleanAndAlignBam", flagFile)
     
 def delly(inputFile, outFiles):
     'Run the best deletion tools I can find which is delly'
     output, flagFile = outFiles
+    # Set the path to the boost libriaires
+    os.system('export DYLD_LIBRARY_PATH=/Users/u0107775/Bioinformatics/delly/src/modular-boost/stage/lib')
     comm = "/Users/u0107775/Bioinformatics/delly/src/delly -t DEL -o {2} -g {1} {0}".format(inputFile, referenceGenome, output)
     runJob(comm, "run delly for deletions", flagFile)
     
@@ -111,8 +113,9 @@ def sortSamtools(bamFile, outFiles):
     print com + "\n"
     runJob(com, "sortSamtools", flagFile)
 
-def indexSamtools(bamFile, output):
-    com = "samtools index {} > {}".format(bamFile, output)
+def indexSamtools(bamFile, outFiles):
+    output, flagFile = outFiles
+    com = "samtools index {}".format(bamFile)
     # No touch file therefore invoke os.system directly
     os.system(com)
     
