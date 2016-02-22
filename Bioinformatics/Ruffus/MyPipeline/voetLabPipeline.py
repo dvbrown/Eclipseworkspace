@@ -189,20 +189,20 @@ inputFile = options.input_file
 #    'Align with BBmap'
 #    bbmap.alignMtDNA(inputFile, output)
 
-@transform(inputFile, suffix(".fastq.gz"), ['.U.bam', 'unaligned.txt'])
-def convertFq(inputFile, output):
-    'Convert the fastq files to unaligned bam'
-    mtDNA_deletion.convertUnalignedBam(inputFile, output)
-    
-@transform(convertFq, suffix(".U.bam"), ['.txt', 'adapters.txt'])
-def markIlumminaAdapters(inputFile, output):
-    'Convert the fastq files to unaligned bam'
-    mtDNA_deletion.markAdapters(inputFile[0], output)
+#@transform(inputFile, suffix(".fastq.gz"), ['.U.bam', 'unaligned.txt'])
+#def convertFq(inputFile, output):
+#    'Convert the fastq files to unaligned bam'
+#    mtDNA_deletion.convertUnalignedBam(inputFile, output)
 #    
-@transform(convertFq, suffix(".bam"), ['.mt.bam', 'mt.txt'])
+#@transform(convertFq, suffix(".U.bam"), ['.txt', 'adapters.txt'])
+#def markIlumminaAdapters(inputFile, output):
+#    'Convert the fastq files to unaligned bam'
+#    mtDNA_deletion.markAdapters(inputFile[0], output)
+#    
+@transform(inputFile, suffix(".fastq.gz"), ['.bam', 'mt.txt'])
 def alignMtDNA(inputFile, output):
     'Align the cleaned files to the mitochondira DNA genome'
-    mtDNA_deletion.alignMtDNA(inputFile[0], output)
+    mtDNA_deletion.alignMtDNA(inputFile, output)
     
 @transform(alignMtDNA, suffix(".bam"), ['.s.bam', ".sort.txt"])
 def sortBam(inputFile, output):

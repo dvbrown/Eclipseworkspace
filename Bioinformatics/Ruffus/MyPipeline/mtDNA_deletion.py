@@ -42,7 +42,7 @@ def markAdapters(unalignmedBam, outFiles):
     """.format(picardLoc, unalignmedBam, output)
     runJob(comm, "markAdapters", flagFile)
     
-def alignMtDNA(unalignedBam, outFiles):
+def alignMtDNAGATK(unalignedBam, outFiles):
     'Align the sequencing reads against the mitochondrai genome. Add read group info later'
     output, flagFile = outFiles
     # Extract sample name for read group name
@@ -63,6 +63,16 @@ def alignMtDNA(unalignedBam, outFiles):
     PRIMARY_ALIGNMENT_STRATEGY=MostDistant ATTRIBUTES_TO_RETAIN=XS \
     TMP_DIR=/Users/u0107775/Bioinformatics/temp
     """.format(picardLoc, unalignedBam, output, referenceGenome)
+    runJob(comm, "cleanAndAlignBam", flagFile)
+    
+def alignMtDNA(inputFile, outFiles):
+    'Align the sequencing reads against the mitochondrai genome. Add read group info later'
+    read1 = inputFile
+    read2 = inputFile.replace('_R1_', '_R2_')
+    output, flagFile = outFiles
+    # Extract sample name for read group name
+    comm = """bwa mem -M -t 3 -p {2} {0} {1} > {3}
+    """.format(read1, read2, referenceGenome, output)
     runJob(comm, "cleanAndAlignBam", flagFile)
     
 def delly(inputFile, outFiles):
