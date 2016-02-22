@@ -45,12 +45,15 @@ def markAdapters(unalignmedBam, outFiles):
 def alignMtDNA(unalignedBam, outFiles):
     'Align the sequencing reads against the mitochondrai genome. Add read group info later'
     output, flagFile = outFiles
+    # Extract sample name for read group name
+    sampleName = unalignedBam[:-5]
+    readGroup = '@RG\tID:{0}\tLB:Unknown\tPL:illumina\tCN:Brussels'.format(sampleName)
     comm = """java -Xmx2G -jar {0}picard.jar SamToFastq \
     I={1} \
     FASTQ=/dev/stdout CLIPPING_ATTRIBUTE='XT' \
     CLIPPING_ACTION=2 INTERLEAVE=true NON_PF=true \
     TMP_DIR=/Users/u0107775/Bioinformatics/temp | \
-    bwa mem -M -t 3 -p {3} /dev/stdin | \
+    bwa mem -M -R {4} -t 3 -p {3} /dev/stdin | \
     java -Xmx3G -jar {0}picard.jar MergeBamAlignment \
     ALIGNED_BAM=/dev/stdin UNMAPPED_BAM={1} \
     OUTPUT={2} R={3} \
@@ -59,7 +62,7 @@ def alignMtDNA(unalignedBam, outFiles):
     INCLUDE_SECONDARY_ALIGNMENTS=true MAX_INSERTIONS_OR_DELETIONS=-1 \
     PRIMARY_ALIGNMENT_STRATEGY=MostDistant ATTRIBUTES_TO_RETAIN=XS \
     TMP_DIR=/Users/u0107775/Bioinformatics/temp
-    """.format(picardLoc, unalignedBam, output, referenceGenome)
+    """.format(picardLoc, unalignedBam, output, referenceGenome, readGroup)
     runJob(comm, "cleanAndAlignBam", flagFile)
     
 def delly(inputFile, outFiles):
