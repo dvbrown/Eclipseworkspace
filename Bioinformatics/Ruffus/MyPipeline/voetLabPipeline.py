@@ -214,10 +214,15 @@ def index(inputFile, output):
     'Sort reads with samtools'
     mtDNA_deletion.indexSamtools(inputFile[0], output) 
      
-@transform(sortBam, suffix(".bam"), ['del.vcf', 'del.txt'])
+@transform(sortBam, suffix(".bam"), ['.bcf', 'del.txt'])
 def runDelly(inputFile, output):
     'Align the cleaned files to the mitochondira DNA genome'
     mtDNA_deletion.delly(inputFile[0], output)
+    
+@transform(runDelly, suffix(".bcf"), ['.vcf', 'view.txt'])
+def convertBcf(inputFile, output):
+    'Convert the bcf file to be human readable'
+    mtDNA_deletion.viewVcfFile(inputFile[0], output)
 
 #@transform(inputFile, suffix(".bam"), ['.SA.sam', ".extractSA.txt"])
 #def getSecAlignment(inputFile, outFiles):

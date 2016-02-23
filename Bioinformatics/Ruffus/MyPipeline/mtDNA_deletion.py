@@ -4,7 +4,7 @@ import pandas as pd
 # Global parameters
 picardLoc = '/Users/u0107775/Bioinformatics/picard-tools-2.0.1/'
 bioinformaticsDir = '/Users/u0107775/Bioinformatics/resources/'
-referenceGenome = '/Users/u0107775/Bioinformatics/resources/rCRS_Mitochondira_fasta_noLines.fa'
+referenceGenome = '/Users/u0107775/Bioinformatics/resources/NC_012920.1.fa'
 
 def runJob(comm, taskName, flagFile):
     '''An internal function used by the rest of the functions to spawn a process in the shell, capture the standard output 
@@ -71,7 +71,7 @@ def alignMtDNA(inputFile, outFiles):
     read2 = inputFile.replace('_R1_', '_R2_')
     output, flagFile = outFiles
     # Extract sample name for read group name
-    comm = """bwa mem -M -t 3 -p {2} {0} {1} > {3}
+    comm = """bwa mem -M {2} {0} {1} > {3}
     """.format(read1, read2, referenceGenome, output)
     runJob(comm, "cleanAndAlignBam", flagFile)
     
@@ -79,9 +79,15 @@ def delly(inputFile, outFiles):
     'Run the best deletion tools I can find which is delly'
     output, flagFile = outFiles
     # Set the path to the boost libriaires
-    os.system('export DYLD_LIBRARY_PATH=/Users/u0107775/Bioinformatics/delly/src/modular-boost/stage/lib')
+    #os.system('export DYLD_LIBRARY_PATH=/Users/u0107775/Bioinformatics/delly/src/modular-boost/stage/lib')
     comm = "/Users/u0107775/Bioinformatics/delly/src/delly -t DEL -o {2} -g {1} {0}".format(inputFile, referenceGenome, output)
     runJob(comm, "run delly for deletions", flagFile)
+    
+def viewVcfFile(inputFile, outFiles):
+    'Delly emits a binary file. Need to parse it to human readable'
+    output, flagFile = outFiles
+    comm = "bcftools view {} > {}".format(inputFile, output)
+    runJob(comm, "translate bcf file", flagFile)
     
 def indelList():
     'Produce a list of know indels'
