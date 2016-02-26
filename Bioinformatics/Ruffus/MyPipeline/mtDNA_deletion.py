@@ -4,7 +4,8 @@ import pandas as pd
 # Global parameters
 picardLoc = '/Users/u0107775/Bioinformatics/picard-tools-2.0.1/'
 bioinformaticsDir = '/Users/u0107775/Bioinformatics/resources/'
-referenceGenome = '/Users/u0107775/Bioinformatics/resources/NC_012920.1.fa'
+#referenceGenome = '/Users/u0107775/Bioinformatics/resources/NC_012920.1.fa'
+referenceGenome = '/Users/u0107775/Bioinformatics/resources/rCS.fa'
 
 def runJob(comm, taskName, flagFile):
     '''An internal function used by the rest of the functions to spawn a process in the shell, capture the standard output 
@@ -46,14 +47,14 @@ def alignMtDNAGATK(unalignedBam, outFiles):
     'Align the sequencing reads against the mitochondrai genome. Add read group info later'
     output, flagFile = outFiles
     # Extract sample name for read group name
-    sampleName = unalignedBam[:-5]
-    readGroup = '@RG\tID:{0}\tLB:Unknown\tPL:illumina\tCN:Brussels'.format(sampleName)
+    sampleName = unalignedBam[:-4]
+    readGroup = '@RG\tID:{}\tLB:Unknown\tPL:illumina\tCN:Brussels'.format(sampleName)
     comm = """java -Xmx2G -jar {0}picard.jar SamToFastq \
     I={1} \
     FASTQ=/dev/stdout CLIPPING_ATTRIBUTE='XT' \
     CLIPPING_ACTION=2 INTERLEAVE=true NON_PF=true \
     TMP_DIR=/Users/u0107775/Bioinformatics/temp | \
-    bwa mem -M -t 3 -p {3} /dev/stdin | \
+    bwa mem -M -t 3 -R {4} -p {3} /dev/stdin | \
     java -Xmx3G -jar {0}picard.jar MergeBamAlignment \
     ALIGNED_BAM=/dev/stdin UNMAPPED_BAM={1} \
     OUTPUT={2} R={3} \
@@ -62,7 +63,7 @@ def alignMtDNAGATK(unalignedBam, outFiles):
     INCLUDE_SECONDARY_ALIGNMENTS=true MAX_INSERTIONS_OR_DELETIONS=-1 \
     PRIMARY_ALIGNMENT_STRATEGY=MostDistant ATTRIBUTES_TO_RETAIN=XS \
     TMP_DIR=/Users/u0107775/Bioinformatics/temp
-    """.format(picardLoc, unalignedBam, output, referenceGenome)
+    """.format(picardLoc, unalignedBam, output, referenceGenome, readGroup)
     runJob(comm, "cleanAndAlignBam", flagFile)
     
 def alignMtDNA(inputFile, outFiles):
@@ -70,9 +71,11 @@ def alignMtDNA(inputFile, outFiles):
     read1 = inputFile
     read2 = inputFile.replace('_R1_', '_R2_')
     output, flagFile = outFiles
+    sampleName = inputFile[:-4]  
+    readGroup = '"@RG\tID:{0}\tSM:{0}\tPL:Illumina"'.format(sampleName)
     # Extract sample name for read group name
-    comm = """bwa mem -M {2} {0} {1} > {3}
-    """.format(read1, read2, referenceGenome, output)
+    comm = """bwa mem -M -t 3 -R {4} {2} {0} {1} > {3}
+    """.format(read1, read2, referenceGenome, output, readGroup)
     runJob(comm, "cleanAndAlignBam", flagFile)
     
 def delly(inputFile, outFiles):

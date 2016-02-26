@@ -199,7 +199,7 @@ inputFile = options.input_file
 #    'Convert the fastq files to unaligned bam'
 #    mtDNA_deletion.markAdapters(inputFile[0], output)
 #    
-@transform(inputFile, suffix(".fastq.gz"), ['.bam', 'mt.txt'])
+@transform(inputFile, suffix(".fastq.gz"), ['.m.bam', 'mt.txt'])
 def alignMtDNA(inputFile, output):
     'Align the cleaned files to the mitochondira DNA genome'
     mtDNA_deletion.alignMtDNA(inputFile, output)
