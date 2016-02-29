@@ -34,13 +34,29 @@ def pindel(inputFile, outFiles):
     -v {2} -G'''.format(inputFile, referenceGenome, output) # the name and date of the reference genome The G gives the genotypes in GATK format
     runJob(comm, "run pidel for deletions", flagFile)
     
-def platypus()
+def platypus(inputFile, outFiles):
+    'run the platypus tool to find deletions'
+    output, flagFile = outFiles
+    comm = '''python /Users/u0107775/Bioinformatics/Platypus_0.8.1/Platypus.py callVariants \
+    --bamFiles={0} --refFile={1} --output={2} reigons=chrM'''.format(inputFile, referenceGenome, output)
+    runJob(comm, "run Platypus", flagFile)
     
 def viewVcfFile(inputFile, outFiles):
     'Delly emits a binary file. Need to parse it to human readable'
     output, flagFile = outFiles
     comm = "bcftools view {} > {}".format(inputFile, output)
     runJob(comm, "translate bcf file", flagFile)
+    
+def vcfToTable(inputFile, outFiles):
+    'Convert a vcf file to a table for more human readability'
+    output, flagFile = outFiles
+    comm = '''java -jar /Users/u0107775/Bioinformatics/GenomeAnalysisTK.jar \
+     -R {0} -T VariantsToTable \
+     -V {1} \
+     -F CHROM -F POS -F ID -F QUAL -F ALT -F END -F PE \
+     -GF RC -GF RCL -GF RCR -GF DR -GF DV \
+     -o {2}'''.format(referenceGenome, inputFile, output)
+    runJob(comm, "convert a vcf file to a table", flagFile)
     
 def extractSecondaryAlignments(bamFile, outFiles):
     output, flagFile = outFiles
