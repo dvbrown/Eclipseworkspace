@@ -199,10 +199,10 @@ inputFile = options.input_file
 #    'Convert the fastq files to unaligned bam'
 #    mtDNA_deletion.markAdapters(inputFile[0], output)
 #    
-#@transform(inputFile, suffix(".fastq.gz"), ['.m.bam', 'mt.txt'])
-#def alignMtDNA(inputFile, output):
-#    'Align the cleaned files to the mitochondira DNA genome'
-#    mtDNA_deletion.alignMtDNA(inputFile, output)
+@transform(inputFile, suffix(".fastq"), ['.m.bam', 'mt.txt'])
+def alignMtDNA(inputFile, output):
+    'Align the cleaned files to the mitochondira DNA genome'
+    mtDNA_deletion.alignMtDNA(inputFile, output)
 #    
 #@transform(alignMtDNA, suffix(".bam"), ['.s.bam', ".sort.txt"])
 #def sortBam(inputFile, output):
@@ -245,10 +245,10 @@ inputFile = options.input_file
 #    'Extract the secondary split read from bed file and append as columns next to the first split read entry'
 #    mtDNA_deletion.collapseSplitReads(inputFile, output)
     
-@transform(inputFile, suffix(".vcf"), ['.csv', "success.txt"])
-def runVcfToTable(inputFile, output):
-    'extract fields from the VCF to a table format that is more convenient to work with in downstream analyses.'
-    indelTools.vcfToTable(inputFile, output)
+#@transform(inputFile, suffix(".vcf"), ['.csv', "success.txt"])
+#def runVcfToTable(inputFile, output):
+#    'extract fields from the VCF to a table format that is more convenient to work with in downstream analyses.'
+#    indelTools.vcfToTable(inputFile, output)
 
 #88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
 
