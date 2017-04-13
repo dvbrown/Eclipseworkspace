@@ -28,6 +28,7 @@ def readDNAconcentration_2_dataframe(dnaConcFile):
      rowName= list(df_DNA_concentration.index)
      newRowNames = ['Plate1_' + i for i in rowName]
      df_DNA_concentration.index = (newRowNames)
+     df_DNA_concentration.columns = ["DNA_concentration_pg/nL"] # Multuiply here
      return df_DNA_concentration
 
 
@@ -39,7 +40,12 @@ def calculateLabcyte_input(df_DNA_concentration):
     # Join the dna dataframe with the Picogreen concentrations
     joined = pd.merge(dnaPickList, df_DNA_concentration, how='inner', left_on="Sample ID",
          right_index=True, sort=False, copy=True)
-    return joined
+    joined["input_pg"] = 100
+    joined["Transfer Volume"] = 100 / joined["DNA_concentration_pg/nL"]
+
+    waterPickList = pd.read_table(waterPickFile, sep=',', header=0, index_col=1)
+
+    return waterPickList
 
 
 
