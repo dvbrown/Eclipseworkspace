@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import argparse, aUsefulFunctionsFiltering, itertools, csv, string, os
+import argparse, aUsefulFunctionsFiltering, itertools, string
 
 parser = argparse.ArgumentParser(description="""
     This script parsers output from the Picogreen software.
@@ -28,31 +28,34 @@ def parsePicogreenOutput(picoGreenOutput):
         noCommas.append([i.replace(",", ".") for i in row])
     return noCommas
 
-def plate2columnConvert(plateData, outputFileName):
+def plate2columnConvert(plateData):
     'Converts the plate output of parsePicogreenOutput and turns it into a column based format'
     plateMap = list(itertools.chain.from_iterable(plateData))
 
     # Write in the well names
     letters = list(string.ascii_uppercase)
     letters = letters[0:8]
-    number = range(1, 13)
-
+    number = range(2, 13)
     wells = []
     for letter in letters:
         for num in number:
             x = letter + str(num)
             wells.append(x)
 
+    # Zip the data and well names together
+    outTuple = zip(wells, plateMap)
+    outList = [list(row) for row in outTuple]
+
+    # Print the output to the user
     for well, gene in zip(wells, plateMap):
         print well + '\t' + gene
 
-    output = zip(wells, plateMap)
-    ouput = [list(row) for row in output]
-    print (ouput)
+    return outList
 
 def main():
     plateData = parsePicogreenOutput(args.inputFile)
-    plate2columnConvert(plateData, args.outputFile)
+    columnData= plate2columnConvert(plateData)
+    aUsefulFunctionsFiltering.writeAfile(args.outputFile, columnData)
 
 if __name__ == '__main__':
     main()
