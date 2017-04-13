@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import argparse, aUsefulFunctionsFiltering
+import argparse, aUsefulFunctionsFiltering, itertools, csv, string, os
 
 parser = argparse.ArgumentParser(description="""
     This script parsers output from the Picogreen software.
@@ -11,21 +11,48 @@ parser.add_argument('-i', '--inputFile', required=True, help='''The file that yo
 parser.add_argument('-o', '--outputFile', required=True, help='''The name of the output file you want''')
 args = parser.parse_args()
 
-# Read in the input file. First test if it is a csv
-if args.inputFile[-4:] != '.txt':
-    print 'Your input file is not in tab format. It is probably in .xls and you should convert to .tab first'
+def parsePicogreenOutput(picoGreenOutput):
+    'Reads the output of the Picogreen assay in .txt format and removes all the unecessary parts of the file'
+    # Read in the input file. First test if it is a csv
+    if picoGreenOutput[-4:] != '.txt':
+        print 'Your input file is not in tab format. It is probably in .xls and you should convert to .tab first'
 
-dat = aUsefulFunctionsFiltering.readAfile(args.inputFile)
+    dat = aUsefulFunctionsFiltering.readAfile(args.inputFile)
+    dat = dat[13:21]
 
+    # Cut out the first and last columns
+    plateMap = [row[2:13] for row in dat]
+    # Change the commas to points
+    noCommas = []
+    for row in plateMap:
+        noCommas.append([i.replace(",", ".") for i in row])
+    return noCommas
 
-dat = dat[13:21]
+def plate2columnConvert(plateData, outputFileName):
+    'Converts the plate output of parsePicogreenOutput and turns it into a column based format'
+    plateMap = list(itertools.chain.from_iterable(plateData))
 
+    # Write in the well names
+    letters = list(string.ascii_uppercase)
+    letters = letters[0:8]
+    number = range(1, 13)
 
-# Cut out the first and last columns
-out = [row[2:13] for row in dat]
-#for row in dat:
-#    for i in row[2:13]:
-#        print i # Need to fix this with some checking
+    wells = []
+    for letter in letters:
+        for num in number:
+            x = letter + str(num)
+            wells.append(x)
 
+    for well, gene in zip(wells, plateMap):
+        print well + '\t' + gene
 
-#aUsefulFunctionsFiltering.writeAfile(args.outputFile, out)
+    output = zip(wells, plateMap)
+    ouput = [list(row) for row in output]
+    print (ouput)
+
+def main():
+    plateData = parsePicogreenOutput(args.inputFile)
+    plate2columnConvert(plateData, args.outputFile)
+
+if __name__ == '__main__':
+    main()
