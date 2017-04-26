@@ -43,7 +43,7 @@ def calculateLabcyte_input(df_DNA_concentration):
     joined["input_pg"] = 100
     joined["Transfer Volume"] = 100 / joined["DNA_concentration_pg/nL"]
 
-    waterPickList = pd.read_table(waterPickFile, sep=',', header=0, index_col=1)
+    waterPickList = pd.read_table(waterPickFile, sep=',', header=0, index_col=None)
 
     return waterPickList
 
