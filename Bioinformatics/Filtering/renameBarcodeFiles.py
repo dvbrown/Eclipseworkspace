@@ -3,8 +3,11 @@
 import aUsefulFunctionsFiltering
 import argparse, os
 
-parser = argparse.ArgumentParser(description="""Reads an input file that is a linear representation of a 96 well plate and extracts the
-    replicate level and binds them in columns""")
+parser = argparse.ArgumentParser(description="""
+Input is a directory with filenames corresponding to sequencing indexes.
+You also need a tab delimited file with the sequencing indexes in one column and the actual name of the sample in other column.
+The output is renamed files. The original file is NOT overwritten.
+""")
 parser.add_argument('-i', '--inputData', required=True, help='''The file that is the input''')
 parser.add_argument('-g', '--gcCode', required=True, help='''The GC code of your run''')
 parser.add_argument('-o', '--outputData', required=False, help='The file you get at the output')
