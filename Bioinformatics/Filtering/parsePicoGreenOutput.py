@@ -24,9 +24,8 @@ def parsePicogreenOutput96(picoGreenOutput):
 
     dat = aUsefulFunctionsFiltering.readAfile(args.inputFile)
     dat = dat[13:21]
-
     # Cut out the first and last columns
-    plateMap = [row[2:13] for row in dat]
+    plateMap = [row[3:13] for row in dat]
     # Change the commas to points
     noCommas = []
     for row in plateMap:
@@ -39,13 +38,14 @@ def parsePicogreenOutput384(picoGreenOutput):
     if picoGreenOutput[-4:] != '.txt':
         print 'Your input file is not in tab format. It is probably in .xls and you should convert to .tab first'
     dat = aUsefulFunctionsFiltering.readAfile(args.inputFile)
-    dat = dat[13:]
+    dat = dat[21:37]
     # Cut out the first and last columns
     plateMap = [row[2:25] for row in dat]
     # Change the commas to points
     noCommas = []
     for row in plateMap:
         noCommas.append([i.replace(",", ".") for i in row])
+        print noCommas
     return noCommas
 
 def plate2columnConvert96(plateData):
@@ -75,7 +75,7 @@ def plate2columnConvert384(plateData):
     # Write in the well names
     letters = list(string.ascii_uppercase)
     letters = letters[0:16]
-    number = range(2, 26)
+    number = range(1, 26)
     wells = []
     for letter in letters:
         for num in number:
@@ -86,8 +86,8 @@ def plate2columnConvert384(plateData):
     outList = [list(row) for row in outTuple]
 
     # Print the output to the user
-    for well, gene in zip(wells, plateMap):
-        print well + '\t' + gene
+    #for well, gene in zip(wells, plateMap):
+        #print well + '\t' + gene
     return outList
 
 def main():
