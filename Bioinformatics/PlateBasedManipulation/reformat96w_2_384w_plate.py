@@ -35,13 +35,19 @@ def makePlateCoordinates():
             wells.append(x)
     return wells
 
+def interleavePlates(plate1, plate2, plate3, plate4, coordinateWell):
+    ''
+    plt1_newcoordinate = coordinateWell[0:384:2]
+    plt1_newcoordinate = plt1_newcoordinate[0:192:12]
+    return plt1_newcoordinate
+
 def main():
     coordinates = makePlateCoordinates()
-    print coordinates
-    df96_1 = args.plate1
-    df96_2 = args.plate2
-    df96_3 = args.plate3
-    df96_4 = args.plate4
+    df96_1 = pd.read_csv(args.plate1)
+    df96_2 = pd.read_csv(args.plate2)
+    df96_3 = pd.read_csv(args.plate3)
+    df96_4 = pd.read_csv(args.plate4)
+    interleavePlates(df96_1, df96_2, df96_3, df96_4, coordinates)
 
 
 if __name__ == '__main__':
