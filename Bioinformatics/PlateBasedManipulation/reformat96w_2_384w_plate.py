@@ -23,11 +23,11 @@ parser.add_argument('-s', '--plate4', required=True, help='''The fourth plate th
 parser.add_argument('-o', '--outputFile', required=True, help='''The name of the output file you want''')
 args = parser.parse_args()
 
-def makePlateCoordinates():
+def makePlateCoordinates(startLetter, endLetter, startNumber, endNumber):
     'Make the list object with the plate coordinates'
     letters = list(string.ascii_uppercase)
-    letters = letters[0:16]
-    number = range(1, 25)
+    letters = letters[startLetter:endLetter:2] # change the middle
+    number = range(startNumber, endNumber, 2)
     wells = []
     for letter in letters:
         for num in number:
@@ -35,19 +35,32 @@ def makePlateCoordinates():
             wells.append(x)
     return wells
 
-def interleavePlates(plate1, plate2, plate3, plate4, coordinateWell):
-    ''
-    plt1_newcoordinate = coordinateWell[0:384:2]
-    plt1_newcoordinate = plt1_newcoordinate[0:192:12]
-    return plt1_newcoordinate
+def interleavePlates(inputPlate96, coordinate):
+    'v'
+    # Read in the dataframe
+    df_df96_plate = pd.read_csv(inputPlate96)
+    df_df96_plate['Coordinate384'] = coordinate
+    return df_df96_plate
 
 def main():
-    coordinates = makePlateCoordinates()
-    df96_1 = pd.read_csv(args.plate1)
-    df96_2 = pd.read_csv(args.plate2)
-    df96_3 = pd.read_csv(args.plate3)
-    df96_4 = pd.read_csv(args.plate4)
-    interleavePlates(df96_1, df96_2, df96_3, df96_4, coordinates)
+    coordinates_p1 = makePlateCoordinates(0,15,1,24)
+    coordinates_p2 = makePlateCoordinates(0,15,2,25)
+    coordinates_p3 = makePlateCoordinates(1,16,1,24)
+    coordinates_p4 = makePlateCoordinates(1,16,2,25)
+    p1 = interleavePlates(args.plate1, coordinates_p1)
+    p2 = interleavePlates(args.plate2, coordinates_p2)
+    p3 = interleavePlates(args.plate3, coordinates_p3)
+    p4 = interleavePlates(args.plate4, coordinates_p4)
+    df = pd.concat([p1,p2,p3,p4])
+    #print(df)
+    df.to_csv(args.outputFile)
+    index = pd.read_csv('quantifluorLayout.csv')
+    print(df.columns)
+    print(index.columns)
+
+    dfMerge = pd.merge(index, df, left_on='Coordinate384')
+    print(dfMerge)
+
 
 
 if __name__ == '__main__':
