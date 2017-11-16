@@ -15,7 +15,7 @@ parser = argparse.ArgumentParser(description="""
     """)
 parser.add_argument('-i', '--inputFile', required=True, help='''The file with the sort template in 2D format''')
 parser.add_argument('-p', '--plateType', required=False, help='''The type of plate you have. Currently valid values are 96 but one day I will make 384 well''')
-parser.add_argument('-o', '--outputFile', required=False, help='''The name of the output file you want''')
+parser.add_argument('-o', '--outputFile', required=True, help='''The name of the output file you want''')
 args = parser.parse_args()
 
 fileInput = args.inputFile
